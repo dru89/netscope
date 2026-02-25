@@ -141,13 +141,35 @@ export function computeTimingOffsets(entry: HarEntry) {
   let offset = 0
 
   if (timings.blocked && timings.blocked > 0) {
-    phases.push({
-      name: 'Blocked',
-      start: offset,
-      duration: timings.blocked,
-      color: 'var(--color-timing-blocked)',
-    })
-    offset += timings.blocked
+    const queueing = timings._blocked_queueing
+    if (queueing != null && queueing > 0) {
+      // Chrome-specific: split into Queueing + Stalled
+      phases.push({
+        name: 'Queueing',
+        start: offset,
+        duration: queueing,
+        color: 'var(--color-timing-queueing)',
+      })
+      offset += queueing
+      const stalled = timings.blocked - queueing
+      if (stalled > 0) {
+        phases.push({
+          name: 'Stalled',
+          start: offset,
+          duration: stalled,
+          color: 'var(--color-timing-blocked)',
+        })
+        offset += stalled
+      }
+    } else {
+      phases.push({
+        name: 'Blocked',
+        start: offset,
+        duration: timings.blocked,
+        color: 'var(--color-timing-blocked)',
+      })
+      offset += timings.blocked
+    }
   }
 
   if (timings.dns && timings.dns > 0) {

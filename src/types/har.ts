@@ -152,6 +152,8 @@ export interface HarTimings {
   receive: number
   ssl?: number
   comment?: string
+  // Chrome-specific extension: portion of `blocked` spent in browser queue
+  _blocked_queueing?: number
 }
 
 // App-specific types

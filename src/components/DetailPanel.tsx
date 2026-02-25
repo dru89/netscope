@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import type { HarEntry } from '../types/har'
 import {
   formatBytes,
@@ -19,7 +19,7 @@ interface DetailPanelProps {
   onClose: () => void
 }
 
-type DetailTab = 'headers' | 'payload' | 'response' | 'timing' | 'cookies'
+type DetailTab = 'headers' | 'payload' | 'response' | 'timing' | 'cookies' | 'source'
 
 export function DetailPanel({ entry, onClose }: DetailPanelProps) {
   const [activeTab, setActiveTab] = useState<DetailTab>('headers')
@@ -30,6 +30,7 @@ export function DetailPanel({ entry, onClose }: DetailPanelProps) {
     { id: 'response', label: 'Response' },
     { id: 'timing', label: 'Timing' },
     { id: 'cookies', label: 'Cookies' },
+    { id: 'source', label: 'Source' },
   ]
 
   return (
@@ -75,6 +76,7 @@ export function DetailPanel({ entry, onClose }: DetailPanelProps) {
         {activeTab === 'response' && <ResponseTab entry={entry} />}
         {activeTab === 'timing' && <TimingTab entry={entry} />}
         {activeTab === 'cookies' && <CookiesTab entry={entry} />}
+        {activeTab === 'source' && <SourceTab entry={entry} />}
       </div>
     </div>
   )
@@ -435,6 +437,30 @@ function CookiesTab({ entry }: { entry: HarEntry }) {
           </table>
         </div>
       )}
+    </div>
+  )
+}
+
+function SourceTab({ entry }: { entry: HarEntry }) {
+  // Strip internal computed fields to show clean HAR JSON
+  const source = useMemo(() => {
+    const { _index, _url, ...clean } = entry
+    return JSON.stringify(clean, null, 2)
+  }, [entry])
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(source)
+  }
+
+  return (
+    <div className="detail-section">
+      <div className="detail-section-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span>HAR Entry Source</span>
+        <button className="source-copy-btn" onClick={handleCopy}>
+          Copy
+        </button>
+      </div>
+      <div className="code-preview">{source}</div>
     </div>
   )
 }

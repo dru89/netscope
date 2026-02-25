@@ -35,6 +35,7 @@
   --color-method-patch: #7b1fa2;
 
   --color-timing-blocked: #b0bec5;
+  --color-timing-queueing: #90a4ae;
   --color-timing-dns: #80cbc4;
   --color-timing-connect: #ffb74d;
   --color-timing-ssl: #ba68c8;
