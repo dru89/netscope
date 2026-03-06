@@ -70,7 +70,7 @@ export function WelcomeScreen({ onOpenFile, error }: WelcomeScreenProps) {
           opacity="0.1"
         />
       </svg>
-      <h1 className="welcome-title">HAR Explorer</h1>
+      <h1 className="welcome-title">Netscope</h1>
       <p className="welcome-subtitle">
         Open, inspect, and analyze HTTP Archive files.
         <br />

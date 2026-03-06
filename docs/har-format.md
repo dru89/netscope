@@ -1,6 +1,6 @@
 # HAR Format
 
-HAR (HTTP Archive) is a JSON-based format for recording HTTP transactions. HAR Explorer supports the **HAR 1.2 specification**.
+HAR (HTTP Archive) is a JSON-based format for recording HTTP transactions. Netscope supports the **HAR 1.2 specification**.
 
 ## Specification
 
@@ -82,7 +82,7 @@ A HAR file is a JSON object with a single top-level `log` property:
 
 Values of `-1` indicate the phase did not apply to this request (e.g., `dns` is `-1` for requests reusing an existing connection).
 
-## How HAR Explorer Parses HAR Files
+## How Netscope Parses HAR Files
 
 Parsing happens in `src/utils/har.ts` in the `parseHar()` function:
 

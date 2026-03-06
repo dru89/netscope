@@ -1,10 +1,10 @@
-# HAR Explorer
+# Netscope
 
 A native macOS desktop application for viewing and analyzing HTTP Archive (HAR) files. Built with Electron, React, and TypeScript.
 
-HAR Explorer gives you the same network inspection experience as Chrome DevTools, but as a standalone app -- open HAR files from Finder, filter and sort requests, inspect headers and timing, and search through raw source data.
+Netscope gives you the same network inspection experience as Chrome DevTools, but as a standalone app -- open HAR files from Finder, filter and sort requests, inspect headers and timing, and search through raw source data.
 
-![HAR Explorer main screen showing a list of network requests](images/main-screen.png)
+![Netscope main screen showing a list of network requests](images/main-screen.png)
 
 ## Features
 
@@ -42,7 +42,7 @@ The Source tab shows the raw HAR JSON for any entry. Open the search bar with Cm
 
 Switch between System, Light, and Dark themes using the toggle in the bottom-right corner. Your preference is saved across sessions.
 
-![HAR Explorer in dark mode](images/main-screen-dark.png)
+![Netscope in dark mode](images/main-screen-dark.png)
 
 ### Other features
 
@@ -55,13 +55,13 @@ Switch between System, Light, and Dark themes using the toggle in the bottom-rig
 
 ## Installation
 
-Download the latest `.dmg` from [Releases](https://github.com/Dru89/har-analyzer/releases), open it, and drag HAR Explorer to your Applications folder.
+Download the latest `.dmg` from [Releases](https://github.com/Dru89/netscope/releases), open it, and drag Netscope to your Applications folder.
 
-To set HAR Explorer as the default handler for `.har` files:
+To set Netscope as the default handler for `.har` files:
 
 1. Right-click any `.har` file in Finder
 2. Choose **Get Info**
-3. Under **Open with**, select **HAR Explorer**
+3. Under **Open with**, select **Netscope**
 4. Click **Change All...**
 
 ## Development

@@ -1,6 +1,6 @@
 # Features Guide
 
-A walkthrough of every feature in HAR Explorer.
+A walkthrough of every feature in Netscope.
 
 ## Opening Files
 
@@ -12,16 +12,16 @@ Press **Cmd+O** or go to **File > Open HAR File...** in the menu bar. A native f
 
 ### 2. Drag and Drop
 
-Drag a `.har` file from Finder (or any other source) and drop it anywhere on the HAR Explorer window. The file loads immediately.
+Drag a `.har` file from Finder (or any other source) and drop it anywhere on the Netscope window. The file loads immediately.
 
 ### 3. Double-Click in Finder
 
-After setting HAR Explorer as the default handler for `.har` files (see [README](../README.md#setting-as-default-har-handler)), double-clicking a `.har` file in Finder opens it directly in the app.
+After setting Netscope as the default handler for `.har` files (see [README](../README.md#setting-as-default-har-handler)), double-clicking a `.har` file in Finder opens it directly in the app.
 
 ### 4. Command Line
 
 ```bash
-open "release/mac-arm64/HAR Explorer.app" --args /path/to/file.har
+open "release/mac-arm64/Netscope.app" --args /path/to/file.har
 ```
 
 When a file is opened while the app is already running, it replaces the current file. The previous file's state (selected entry, filters) is cleared.
@@ -168,7 +168,7 @@ The bottom bar shows aggregate statistics for the entire HAR file (not affected 
 
 ## System Theme
 
-HAR Explorer follows the macOS system appearance setting. When you switch between Light and Dark mode in System Settings, the app updates automatically. There is no manual toggle -- it always matches your system preference.
+Netscope follows the macOS system appearance setting. When you switch between Light and Dark mode in System Settings, the app updates automatically. There is no manual toggle -- it always matches your system preference.
 
 The theme is implemented with CSS custom properties and a `@media (prefers-color-scheme: dark)` query, so the transition is instantaneous with no flash.
 

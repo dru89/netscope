@@ -1,6 +1,6 @@
 # Architecture
 
-HAR Explorer is an Electron application with a clear separation between the **main process** (Node.js), the **preload script** (bridge), and the **renderer process** (React UI).
+Netscope is an Electron application with a clear separation between the **main process** (Node.js), the **preload script** (bridge), and the **renderer process** (React UI).
 
 ## Process Model
 
@@ -29,7 +29,7 @@ The main process runs in Node.js and handles everything that requires native OS 
 
 - **Finder file association** -- Listens for the `open-file` app event, which fires when macOS asks the app to open a `.har` file (double-click in Finder, drag onto dock icon, or `open` CLI command). If the window isn't ready yet, the file path is stored in `pendingFile` and sent once the window loads.
 
-- **Command-line arguments** -- On startup, checks `process.argv` for a `.har` file path, supporting `open "HAR Explorer.app" --args file.har` usage.
+- **Command-line arguments** -- On startup, checks `process.argv` for a `.har` file path, supporting `open "Netscope.app" --args file.har` usage.
 
 - **Application menu** -- Builds a native menu bar with File > Open HAR File (Cmd+O), standard Edit/View/Window menus, and the About panel.
 
@@ -84,7 +84,7 @@ tsc          ->  vite build  ->  electron-builder
    - `dist/` -- The React app (HTML, CSS, JS)
    - `dist-electron/main.js` -- The compiled main process
    - `dist-electron/preload.js` -- The compiled preload script
-3. **electron-builder** -- Packages everything into `release/mac-arm64/HAR Explorer.app` and `release/HAR Explorer-1.0.0-arm64.dmg`
+3. **electron-builder** -- Packages everything into `release/mac-arm64/Netscope.app` and `release/Netscope-1.0.0-arm64.dmg`
 
 ## Security Model
 

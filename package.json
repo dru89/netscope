@@ -1,12 +1,12 @@
 {
-  "name": "har-explorer",
+  "name": "netscope",
   "version": "1.2.0",
   "description": "A desktop app for viewing and exploring HAR files",
   "author": "Drew Hays",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Dru89/har-analyzer"
+    "url": "https://github.com/Dru89/netscope"
   },
   "main": "dist-electron/main.js",
   "scripts": {
@@ -38,14 +38,14 @@
     "vite-plugin-electron-renderer": "^0.14.5"
   },
   "build": {
-    "appId": "com.har-explorer.app",
-    "productName": "HAR Explorer",
+    "appId": "com.netscope.app",
+    "productName": "Netscope",
     "afterSign": "scripts/notarize.js",
     "publish": [
       {
         "provider": "github",
         "owner": "Dru89",
-        "repo": "har-analyzer"
+        "repo": "netscope"
       }
     ],
     "mac": {

@@ -37,4 +37,4 @@ tsc && vite build && electron-builder --mac --publish always
 
 echo ""
 echo "Release $TAG published!"
-echo "https://github.com/Dru89/har-analyzer/releases/tag/$TAG"
+echo "https://github.com/Dru89/netscope/releases/tag/$TAG"
