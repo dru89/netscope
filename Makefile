@@ -56,8 +56,14 @@ build/icon.png: images/netscope.png
 	@sips -z 512 512 $< --out $@ >/dev/null
 	@echo "Generated $@"
 
-# Interactive release: prompts for version bump type, updates package.json,
-# commits, tags, and pushes. GitHub Actions handles the rest.
+# Release: bump version, commit, tag, and push. GitHub Actions handles the rest.
+#
+# Usage:
+#   make release                  # interactive prompt
+#   make release VERSION=patch    # patch bump (1.2.3 → 1.2.4)
+#   make release VERSION=minor    # minor bump (1.2.3 → 1.3.0)
+#   make release VERSION=major    # major bump (1.2.3 → 2.0.0)
+#   make release VERSION=2.1.0   # explicit version
 release:
 	@if [ -n "$$(git status --porcelain)" ]; then \
 		echo "Error: You have uncommitted changes. Please commit or stash them first."; \
@@ -70,35 +76,44 @@ release:
 	NEXT_PATCH="$$MAJOR.$$MINOR.$$((PATCH + 1))"; \
 	NEXT_MINOR="$$MAJOR.$$((MINOR + 1)).0"; \
 	NEXT_MAJOR="$$((MAJOR + 1)).0.0"; \
-	echo "Current version: v$$CURRENT"; \
+	if [ -n "$(VERSION)" ]; then \
+		case "$(VERSION)" in \
+			patch) NEXT=$$NEXT_PATCH ;; \
+			minor) NEXT=$$NEXT_MINOR ;; \
+			major) NEXT=$$NEXT_MAJOR ;; \
+			*) NEXT="$(VERSION)" ;; \
+		esac; \
+	else \
+		echo "Current version: v$$CURRENT"; \
+		echo ""; \
+		echo "  1) patch  → v$$NEXT_PATCH"; \
+		echo "  2) minor  → v$$NEXT_MINOR"; \
+		echo "  3) major  → v$$NEXT_MAJOR"; \
+		echo "  4) custom"; \
+		echo ""; \
+		printf "Choice [1]: "; \
+		read CHOICE; \
+		CHOICE=$${CHOICE:-1}; \
+		case $$CHOICE in \
+			1) NEXT=$$NEXT_PATCH ;; \
+			2) NEXT=$$NEXT_MINOR ;; \
+			3) NEXT=$$NEXT_MAJOR ;; \
+			4) printf "Version (without v prefix): "; read NEXT ;; \
+			*) echo "Invalid choice"; exit 1 ;; \
+		esac; \
+	fi; \
 	echo ""; \
-	echo "  1) patch  → v$$NEXT_PATCH"; \
-	echo "  2) minor  → v$$NEXT_MINOR"; \
-	echo "  3) major  → v$$NEXT_MAJOR"; \
-	echo "  4) custom"; \
+	echo "Releasing v$$NEXT..."; \
 	echo ""; \
-	printf "Choice [1]: "; \
-	read CHOICE; \
-	CHOICE=$${CHOICE:-1}; \
-	case $$CHOICE in \
-		1) VERSION=$$NEXT_PATCH ;; \
-		2) VERSION=$$NEXT_MINOR ;; \
-		3) VERSION=$$NEXT_MAJOR ;; \
-		4) printf "Version (without v prefix): "; read VERSION ;; \
-		*) echo "Invalid choice"; exit 1 ;; \
-	esac; \
-	echo ""; \
-	echo "Releasing v$$VERSION..."; \
-	echo ""; \
-	npm version $$VERSION --no-git-tag-version && \
+	npm version $$NEXT --no-git-tag-version && \
 	npm install --package-lock-only && \
 	git add package.json package-lock.json && \
-	git commit -m "Bump version to $$VERSION" && \
-	git tag "v$$VERSION" && \
+	git commit -m "Bump version to $$NEXT" && \
+	git tag "v$$NEXT" && \
 	git push origin main && \
-	git push origin "v$$VERSION"; \
+	git push origin "v$$NEXT"; \
 	echo ""; \
-	echo "Tagged and pushed v$$VERSION. GitHub Actions will handle the rest."; \
+	echo "Tagged and pushed v$$NEXT. GitHub Actions will handle the rest."; \
 	echo "https://github.com/Dru89/netscope/actions"
 
 # Start the marketing site dev server.
