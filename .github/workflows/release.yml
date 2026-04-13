@@ -52,15 +52,26 @@ jobs:
 
       # Build without publishing (--publish never). Each platform
       # produces its artifacts in release/.
-      - name: Build
+      #
+      # macOS signing: electron-builder reads CSC_LINK (base64-encoded
+      # .p12 certificate) and CSC_KEY_PASSWORD directly, creating a
+      # temporary keychain internally. No manual keychain setup needed.
+      #
+      # macOS notarization: scripts/notarize.js reads APPLE_ID,
+      # APPLE_APP_SPECIFIC_PASSWORD, and APPLE_TEAM_ID. If any are
+      # missing, it skips notarization gracefully.
+      - name: Build (macOS)
+        if: matrix.platform == 'mac'
         env:
-          # macOS signing — electron-builder handles keychain creation
-          CSC_LINK: ${{ matrix.platform == 'mac' && secrets.MAC_CERTIFICATE_BASE64 || '' }}
-          CSC_KEY_PASSWORD: ${{ matrix.platform == 'mac' && secrets.MAC_CERTIFICATE_PASSWORD || '' }}
-          # macOS notarization — read by scripts/notarize.js
-          APPLE_ID: ${{ matrix.platform == 'mac' && secrets.APPLE_ID || '' }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ matrix.platform == 'mac' && secrets.APPLE_APP_SPECIFIC_PASSWORD || '' }}
-          APPLE_TEAM_ID: ${{ matrix.platform == 'mac' && secrets.APPLE_TEAM_ID || '' }}
+          CSC_LINK: ${{ secrets.MAC_CERTIFICATE_BASE64 }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: npx tsc && npx vite build && npx electron-builder --mac --publish never
+
+      - name: Build (Windows/Linux)
+        if: matrix.platform != 'mac'
         run: npx tsc && npx vite build && npx electron-builder --${{ matrix.platform }} --publish never
 
       # Verify the macOS build was actually signed
