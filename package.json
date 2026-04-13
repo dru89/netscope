@@ -51,12 +51,18 @@
         "repo": "netscope"
       }
     ],
-    "icon": "build/icon.icns",
     "mac": {
       "category": "public.app-category.developer-tools",
+      "icon": "build/icon.icns",
       "target": [
-        "dmg",
-        "zip"
+        {
+          "target": "dmg",
+          "arch": ["arm64", "x64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["arm64", "x64"]
+        }
       ],
       "identity": "Developer ID Application",
       "hardenedRuntime": true,
@@ -70,6 +76,43 @@
           "name": "HAR File",
           "description": "HTTP Archive File",
           "role": "Viewer"
+        }
+      ]
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        "nsis"
+      ],
+      "fileAssociations": [
+        {
+          "ext": "har",
+          "name": "HAR File",
+          "description": "HTTP Archive File"
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": true
+    },
+    "linux": {
+      "icon": "build/icon.png",
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Development",
+      "mimeTypes": [
+        "application/json"
+      ],
+      "fileAssociations": [
+        {
+          "ext": "har",
+          "name": "HAR File",
+          "description": "HTTP Archive File",
+          "mimeType": "application/json"
         }
       ]
     },

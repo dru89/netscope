@@ -81,7 +81,7 @@ The build uses three tools in sequence:
 
 ```
 tsc          ->  vite build  ->  electron-builder
-(type check)    (bundle)        (package .app/.dmg)
+(type check)    (bundle)        (package native app)
 ```
 
 1. **TypeScript** -- Type-checks all source files (no emit, just validation)
@@ -89,7 +89,16 @@ tsc          ->  vite build  ->  electron-builder
    - `dist/` -- The React app (HTML, CSS, JS)
    - `dist-electron/main.js` -- The compiled main process
    - `dist-electron/preload.js` -- The compiled preload script
-3. **electron-builder** -- Packages everything into `release/mac-arm64/Netscope.app` and `release/Netscope-1.0.0-arm64.dmg`
+3. **electron-builder** -- Packages everything into native app formats:
+   - **macOS** -- `.app` bundle, `.dmg` installer, `.zip` for auto-updates (arm64 + x64)
+   - **Windows** -- NSIS installer `.exe` (x64)
+   - **Linux** -- `.AppImage` and `.deb` (x64)
+
+## Release Pipeline
+
+Releases are built by GitHub Actions (`.github/workflows/release.yml`). Pushing a version tag (`v*`) triggers a matrix build across macOS, Windows, and Linux runners. Each runner builds for its native platform and publishes artifacts to the same GitHub Release. The macOS build signs the app with a Developer ID certificate and notarizes it with Apple (credentials stored as GitHub Actions secrets).
+
+`electron-updater` handles auto-updates by checking the GitHub Release for `latest-mac.yml`, `latest.yml` (Windows), or `latest-linux.yml` manifests, downloading the update silently, and installing it on next app quit.
 
 ## Security Model
 

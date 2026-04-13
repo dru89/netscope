@@ -159,25 +159,56 @@ The filter input (`FilterInput.tsx`) provides autocomplete suggestions as you ty
 
 ## Release Process
 
-The `npm run release` script (`scripts/release.sh`):
-1. Loads `.env` for Apple signing credentials and `GH_TOKEN`
-2. Reads version from `package.json`, creates git tag `v{VERSION}` if needed
-3. Pushes commits and tag to origin
-4. Runs `tsc && vite build && electron-builder --mac --publish always`
-5. electron-builder signs, notarizes (via `scripts/notarize.js`), and uploads DMG + ZIP to GitHub Releases
+Releases are built and published by **GitHub Actions** (`.github/workflows/release.yml`). The workflow triggers on version tags (`v*`) and runs a matrix build across macOS, Windows, and Linux.
 
-Required `.env` variables (see `.env.example`): `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`, `GH_TOKEN`.
+### How to release
+
+1. Bump `version` in `package.json` and run `npm install --package-lock-only` to sync the lockfile
+2. Commit: `git commit -am "Bump version to X.Y.Z"`
+3. Run `npm run release` (or manually: `git tag vX.Y.Z && git push origin main && git push origin vX.Y.Z`)
+4. GitHub Actions builds, signs (macOS), notarizes (macOS), and uploads to GitHub Releases
+
+### What the workflow does
+
+1. Runs `npm test` on Ubuntu
+2. Builds on three runners in parallel:
+   - **macOS** (`macos-latest`) -- imports the signing certificate from secrets, builds DMG + ZIP (arm64 and x64), notarizes with Apple, publishes
+   - **Windows** (`windows-latest`) -- builds NSIS installer (unsigned), publishes
+   - **Linux** (`ubuntu-latest`) -- builds AppImage + .deb, publishes
+3. electron-builder uploads all artifacts and `latest-*.yml` manifests to the same GitHub Release
+
+### Required GitHub Actions secrets
+
+| Secret | Purpose |
+|---|---|
+| `MAC_CERTIFICATE_BASE64` | Base64-encoded .p12 Developer ID certificate |
+| `MAC_CERTIFICATE_PASSWORD` | Password for the .p12 file |
+| `APPLE_ID` | Apple ID email for notarization |
+| `APPLE_APP_SPECIFIC_PASSWORD` | App-specific password for notarization |
+| `APPLE_TEAM_ID` | Apple Developer Team ID |
+
+`GITHUB_TOKEN` is provided automatically by Actions. If any macOS secrets are missing, the build still succeeds but produces unsigned/un-notarized artifacts.
+
+### Auto-updates
+
+`electron-updater` is configured with the `github` provider. On each platform, it looks for the matching `latest-*.yml` manifest in GitHub Releases and downloads updates silently. Updates install on next app quit. No additional server or update feed is needed.
 
 ## App Icon
 
-The source icon is `images/netscope.png` (2048x2048 RGBA). The macOS `.icns` at `build/icon.icns` is generated from it using `sips` + `iconutil`. Site favicons in `site/public/` are also derived from this source image. If the icon changes, regenerate all derived files.
+The source icon is `images/netscope.png` (2048x2048 RGBA). Platform-specific icons in `build/`:
+- `icon.icns` -- macOS (generated with `sips` + `iconutil`)
+- `icon.ico` -- Windows (generated with ImageMagick: `magick images/netscope.png -resize 256x256 -define icon:auto-resize=256,128,64,48,32,16 build/icon.ico`)
+- `icon.png` -- Linux (512x512, generated with `sips -z 512 512`)
+
+Site favicons in `site/public/` are also derived from the source image. If the icon changes, regenerate all derived files.
 
 ## Important Notes
 
-- The app is **macOS-only** (arm64 targets). electron-builder config only defines `mac` targets.
+- The app builds for **macOS** (arm64 + x64), **Windows** (x64, NSIS installer), and **Linux** (x64, AppImage + deb).
+- Windows builds are unsigned -- users will see SmartScreen warnings on first run.
 - `contextIsolation: true` and `nodeIntegration: false` -- the renderer cannot access Node.js APIs directly.
 - The marketing site is a separate Astro project in `site/`, deployed to Netlify (configured in `netlify.toml` at the repo root).
-- When bumping versions, update `version` in `package.json` and run `npm install --package-lock-only` to sync `package-lock.json`. The release script handles tagging.
+- When bumping versions, update `version` in `package.json` and run `npm install --package-lock-only` to sync `package-lock.json`.
 
 ## Keeping This File Up to Date
 
