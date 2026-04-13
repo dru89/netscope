@@ -128,9 +128,27 @@ Shows cookies associated with the request:
 
 ## Filtering
 
-### URL Search
+### Text Search
 
-The search field in the toolbar filters requests by URL. Type any text and the list updates in real time, matching against both the full URL and the resource name. The match is case-insensitive.
+The search field in the toolbar filters requests in real time. Plain text matches against both the full URL and the resource name (case-insensitive).
+
+### Structured Filters
+
+The search field also supports Chrome DevTools-style structured filters using `key:value` syntax. Multiple filters are separated by spaces and AND'd together.
+
+| Filter | Example | What it matches |
+|--------|---------|-----------------|
+| (plain text) | `api` | URL or entry name substring |
+| `domain:` | `domain:*.example.com` | Request domain (supports `*` wildcard) |
+| `method:` | `method:POST` | HTTP method |
+| `status-code:` | `status-code:4xx` | Status code (exact, or range like `4xx`, `5xx`) |
+| `mime-type:` | `mime-type:json` | Response MIME type substring |
+| `larger-than:` | `larger-than:1k` | Transfer size threshold (`k` = kilobytes, `M` = megabytes) |
+| `scheme:` | `scheme:https` | URL scheme (`http` or `https`) |
+| `has-response-header:` | `has-response-header:x-custom` | Presence of a response header |
+| `url:` | `url:/api/v2` | URL substring (explicit) |
+
+Prefix any filter with `-` to negate it. For example, `-domain:analytics.com` excludes requests to that domain. Values with spaces can be quoted: `domain:"my site.com"`.
 
 ### Content Type Filter
 
@@ -148,9 +166,33 @@ The toolbar has filter buttons for common content types:
 | Media | Video and audio files |
 | Other | Anything not matching the above categories |
 
-Click a button to activate the filter. Click the same button again to deactivate it. Only one content type filter can be active at a time. The URL search and content type filter work together -- both must match for a request to be shown.
+Click a button to activate the filter. Click the same button again to deactivate it. Only one content type filter can be active at a time. The text search/structured filters and the content type filter work together -- both must match for a request to be shown.
 
 The toolbar shows the filter status as "X / Y requests" when a filter is active.
+
+---
+
+## Keyboard Shortcuts
+
+### Table Navigation (when the request table has focus)
+
+| Shortcut | Action |
+|---|---|
+| Up / k | Select previous entry |
+| Down / j | Select next entry |
+| Cmd+Up / Home | Select first entry |
+| Cmd+Down / End | Select last entry |
+| Enter / Space | Toggle detail panel for selected entry |
+
+### Global Shortcuts
+
+| Shortcut | Action |
+|---|---|
+| Escape | Close detail panel and return focus to table; blur filter input |
+| / | Focus the toolbar filter input |
+| Cmd+F | Focus the toolbar filter (unless focus is in the detail panel) |
+
+The table container must have focus for table navigation shortcuts to work. Clicking a row gives it focus. When focus moves to the detail panel or filter input, table shortcuts stop firing, so arrow keys and j/k don't interfere with typing or scrolling. Pressing Escape returns focus to the table.
 
 ---
 

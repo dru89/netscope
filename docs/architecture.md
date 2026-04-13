@@ -55,12 +55,17 @@ Each listener method returns an unsubscribe function for cleanup in React `useEf
 
 The renderer is a standard React application bundled by Vite. It has no direct access to Node.js APIs -- all OS interaction goes through `window.electronAPI`.
 
-**State management** is handled entirely with React `useState` and `useCallback` hooks in `App.tsx`. There is no external state library. The key state:
+**State management** is handled entirely with React `useState`, `useCallback`, and `useMemo` hooks in `App.tsx`. There is no external state library. The key state:
 
 - `har` -- The parsed HAR object (or null if no file is loaded)
 - `selectedEntry` -- The currently selected request entry
+- `detailPanelOpen` -- Whether the detail panel is visible
 - `filter` -- Active search text and content type filter
 - `sort` -- Current sort column and direction
+
+**Filtering** uses a two-layer approach. The toolbar search input text is parsed into structured filter tokens by `parseFilterQuery()` in `src/utils/filterParser.ts`, then each entry is tested against all tokens by `matchEntry()`. Toolbar button filters (content type, method, status) are applied separately and AND'd with the text filter results. The filter tokens are memoized with `useMemo` so parsing only runs when the search string changes.
+
+**Keyboard navigation** is split between two handlers. Table-scoped shortcuts (arrow keys, j/k, Enter/Space, Home/End, Cmd+Up/Down) are handled by an `onKeyDown` on the table container div in `RequestTable.tsx`. Global shortcuts (Escape, `/`, Cmd+F) are handled by a `document` keydown listener in `App.tsx`. The global handler checks `document.activeElement` to avoid interfering with inputs.
 
 **Data flow for opening a file:**
 
