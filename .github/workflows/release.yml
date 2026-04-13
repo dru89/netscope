@@ -23,10 +23,12 @@ jobs:
       - run: npm ci
       - run: npm test
 
-  release:
+  # Build on all three platforms without publishing. Artifacts are
+  # uploaded to the workflow run so the publish job can download them.
+  build:
     needs: test
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         include:
           - os: macos-latest
@@ -48,19 +50,10 @@ jobs:
 
       - run: npm ci
 
-      # Build and publish. electron-builder picks the right targets
-      # based on the --mac/--win/--linux flag and the current OS.
-      #
-      # macOS signing: electron-builder reads CSC_LINK (base64-encoded
-      # .p12 certificate) and CSC_KEY_PASSWORD directly, creating a
-      # temporary keychain internally. No manual keychain setup needed.
-      #
-      # macOS notarization: scripts/notarize.js reads APPLE_ID,
-      # APPLE_APP_SPECIFIC_PASSWORD, and APPLE_TEAM_ID. If any are
-      # missing, it skips notarization gracefully.
-      - name: Build and publish
+      # Build without publishing (--publish never). Each platform
+      # produces its artifacts in release/.
+      - name: Build
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # macOS signing — electron-builder handles keychain creation
           CSC_LINK: ${{ matrix.platform == 'mac' && secrets.MAC_CERTIFICATE_BASE64 || '' }}
           CSC_KEY_PASSWORD: ${{ matrix.platform == 'mac' && secrets.MAC_CERTIFICATE_PASSWORD || '' }}
@@ -68,11 +61,9 @@ jobs:
           APPLE_ID: ${{ matrix.platform == 'mac' && secrets.APPLE_ID || '' }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ matrix.platform == 'mac' && secrets.APPLE_APP_SPECIFIC_PASSWORD || '' }}
           APPLE_TEAM_ID: ${{ matrix.platform == 'mac' && secrets.APPLE_TEAM_ID || '' }}
-        run: npx tsc && npx vite build && npx electron-builder --${{ matrix.platform }} --publish always
+        run: npx tsc && npx vite build && npx electron-builder --${{ matrix.platform }} --publish never
 
-      # Verify the macOS build was actually signed. This step fails
-      # the build if codesign reports the app is unsigned, so we don't
-      # silently ship unsigned artifacts.
+      # Verify the macOS build was actually signed
       - name: Verify macOS code signature
         if: matrix.platform == 'mac'
         run: |
@@ -85,3 +76,48 @@ jobs:
           codesign --verify --deep --strict "$APP" 2>&1
           echo "Signature verified OK"
           codesign -dvvv "$APP" 2>&1 | grep "Authority"
+
+      # Upload build artifacts for the publish job. Exclude the
+      # unpacked app directories (mac-arm64/, mac-x64/, linux-unpacked/,
+      # win-unpacked/) — only upload the distributable files.
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: |
+            release/*.dmg
+            release/*.zip
+            release/*.exe
+            release/*.AppImage
+            release/*.deb
+            release/*.yml
+            release/*.yaml
+          if-no-files-found: error
+          retention-days: 1
+
+  # Publish all artifacts to a single GitHub Release. This job only
+  # runs if all three platform builds succeeded.
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+          merge-multiple: true
+
+      - name: List release artifacts
+        run: ls -la release/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          draft: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
