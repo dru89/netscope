@@ -150,6 +150,15 @@ The search field also supports Chrome DevTools-style structured filters using `k
 
 Prefix any filter with `-` to negate it. For example, `-domain:analytics.com` excludes requests to that domain. Values with spaces can be quoted: `domain:"my site.com"`.
 
+### Autocomplete
+
+The filter input provides autocomplete suggestions as you type:
+
+- **Filter type suggestions:** When typing the start of a token, the dropdown suggests matching filter types. For example, typing `do` shows `domain:`.
+- **Value suggestions:** After typing a filter key followed by a colon (e.g., `method:`), the dropdown shows actual values from the loaded HAR file -- unique domains, HTTP methods, status codes, MIME types, URL schemes, and response header names.
+- **Keyboard:** Use Up/Down arrows to navigate suggestions, Enter or Tab to accept, Escape to dismiss.
+- `larger-than:` and `url:` are freeform and don't offer value suggestions.
+
 ### Content Type Filter
 
 The toolbar has filter buttons for common content types:

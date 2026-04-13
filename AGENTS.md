@@ -26,11 +26,11 @@ Detailed architecture docs are in `docs/architecture.md`.
 ```
 electron/           Electron main process + preload script
 src/
-  components/       React components (WelcomeScreen, Toolbar, RequestTable, DetailPanel, SummaryBar)
+  components/       React components (WelcomeScreen, Toolbar, FilterInput, RequestTable, DetailPanel, SummaryBar)
   hooks/            React hooks (currently empty, reserved for future use)
   styles/           Plain CSS (global.css for theme variables, app.css for component styles)
   types/            TypeScript types (HAR spec types, electron API declarations)
-  utils/            HAR parsing, formatting, content type classification, filter parsing
+  utils/            HAR parsing, formatting, content type classification, filter parsing, filter suggestions
   App.tsx           Root component -- all application state lives here
   main.tsx          ReactDOM entry point
 build/              Electron-builder resources (icon.icns)
@@ -75,7 +75,8 @@ npm run site:build    # Build the marketing site
 Tests use **Vitest** (configured automatically through the Vite config). Test files live alongside the source files they test, using the `.test.ts` suffix.
 
 ```
-src/utils/filterParser.test.ts   # Filter parser and matcher unit tests (54 tests)
+src/utils/filterParser.test.ts       # Filter parser and matcher unit tests (54 tests)
+src/utils/filterSuggestions.test.ts  # Autocomplete suggestion logic tests (24 tests)
 ```
 
 Run `npm test` before committing to make sure nothing is broken. When adding new utility functions, write tests. Component tests are not set up yet (no jsdom/happy-dom environment or React Testing Library).
@@ -139,6 +140,15 @@ The toolbar search input supports Chrome DevTools-style structured filters via `
 ### How it fits together
 
 `App.tsx` parses `filter.search` into tokens with `useMemo`, then in the `filteredEntries` computation, calls `matchEntry(tokens, entry)` before applying the toolbar button filters. The old substring-only search is fully replaced by the parser -- plain text tokens produce the same behavior as before.
+
+### Autocomplete
+
+The filter input (`FilterInput.tsx`) provides autocomplete suggestions as you type. The suggestion logic lives in `src/utils/filterSuggestions.ts`:
+
+- **Key suggestions:** When typing at the start of a token (no colon yet), the dropdown shows matching filter type names (e.g., typing `do` suggests `domain:`).
+- **Value suggestions:** After typing a filter key and colon (e.g., `method:`), the dropdown shows actual values extracted from the loaded HAR data -- unique domains, methods, status codes, MIME types, schemes, and response header names. These are precomputed by `extractSuggestionData()` in a `useMemo` in `App.tsx` and passed to the Toolbar as `suggestionData`.
+- **Keyboard interaction:** Arrow keys navigate suggestions, Enter/Tab accepts the selected suggestion, Escape dismisses the dropdown. When the dropdown is open, these keys are intercepted by the FilterInput and don't propagate to the table or global handlers.
+- `larger-than:` and `url:` don't offer value suggestions (they're freeform).
 
 ## Architecture Decisions / Patterns to Preserve
 
