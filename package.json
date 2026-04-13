@@ -1,6 +1,6 @@
 {
   "name": "netscope",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "A desktop app for viewing and exploring HAR files",
   "author": "Drew Hays",
   "license": "MIT",
@@ -57,11 +57,17 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["arm64", "x64"]
+          "arch": [
+            "arm64",
+            "x64"
+          ]
         },
         {
           "target": "zip",
-          "arch": ["arm64", "x64"]
+          "arch": [
+            "arm64",
+            "x64"
+          ]
         }
       ],
       "identity": "Developer ID Application",
