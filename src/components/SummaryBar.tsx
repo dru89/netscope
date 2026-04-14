@@ -1,20 +1,24 @@
-import type { SummaryStats } from '../types/har'
-import type { ThemeMode } from '../App'
-import { formatBytes, formatTime } from '../utils/har'
+import type { SummaryStats } from "../types/har";
+import type { ThemeMode } from "../App";
+import { formatBytes, formatTime } from "../utils/har";
 
 interface SummaryBarProps {
-  summary: SummaryStats
-  themeMode: ThemeMode
-  onThemeModeChange: (mode: ThemeMode) => void
+  summary: SummaryStats;
+  themeMode: ThemeMode;
+  onThemeModeChange: (mode: ThemeMode) => void;
 }
 
 const THEME_OPTIONS: { label: string; value: ThemeMode }[] = [
-  { label: 'System', value: 'system' },
-  { label: 'Light', value: 'light' },
-  { label: 'Dark', value: 'dark' },
-]
+  { label: "System", value: "system" },
+  { label: "Light", value: "light" },
+  { label: "Dark", value: "dark" },
+];
 
-export function SummaryBar({ summary, themeMode, onThemeModeChange }: SummaryBarProps) {
+export function SummaryBar({
+  summary,
+  themeMode,
+  onThemeModeChange,
+}: SummaryBarProps) {
   return (
     <div className="summary-bar">
       <div className="summary-item">
@@ -37,9 +41,7 @@ export function SummaryBar({ summary, themeMode, onThemeModeChange }: SummaryBar
       </div>
       <div className="summary-separator" />
       <div className="summary-item">
-        <span className="summary-value">
-          {formatTime(summary.totalTime)}
-        </span>
+        <span className="summary-value">{formatTime(summary.totalTime)}</span>
         <span>total</span>
       </div>
       <div className="summary-separator" />
@@ -56,7 +58,7 @@ export function SummaryBar({ summary, themeMode, onThemeModeChange }: SummaryBar
         {THEME_OPTIONS.map(({ label, value }) => (
           <button
             key={value}
-            className={`summary-theme-btn ${themeMode === value ? 'active' : ''}`}
+            className={`summary-theme-btn ${themeMode === value ? "active" : ""}`}
             onClick={() => onThemeModeChange(value)}
             title={`${label} theme`}
           >
@@ -65,5 +67,5 @@ export function SummaryBar({ summary, themeMode, onThemeModeChange }: SummaryBar
         ))}
       </div>
     </div>
-  )
+  );
 }

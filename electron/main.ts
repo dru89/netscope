@@ -1,14 +1,22 @@
-import { app, BrowserWindow, dialog, ipcMain, nativeTheme, Menu, shell } from 'electron'
-import { autoUpdater } from 'electron-updater'
-import path from 'path'
-import fs from 'fs'
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  nativeTheme,
+  Menu,
+  shell,
+} from "electron";
+import { autoUpdater } from "electron-updater";
+import path from "path";
+import fs from "fs";
 
-const windows = new Set<BrowserWindow>()
-const windowFilePaths = new Map<BrowserWindow, string>()
-let pendingFile: string | null = null
-let pendingUpdateVersion: string | null = null
+const windows = new Set<BrowserWindow>();
+const windowFilePaths = new Map<BrowserWindow, string>();
+let pendingFile: string | null = null;
+let pendingUpdateVersion: string | null = null;
 
-const isMac = process.platform === 'darwin'
+const isMac = process.platform === "darwin";
 
 function createWindow(fileToOpen?: string): BrowserWindow {
   const win = new BrowserWindow({
@@ -17,213 +25,225 @@ function createWindow(fileToOpen?: string): BrowserWindow {
     minWidth: 900,
     minHeight: 600,
     ...(isMac
-      ? { titleBarStyle: 'hiddenInset' as const, trafficLightPosition: { x: 16, y: 16 } }
+      ? {
+          titleBarStyle: "hiddenInset" as const,
+          trafficLightPosition: { x: 16, y: 16 },
+        }
       : {}),
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
     },
     show: false,
-    backgroundColor: nativeTheme.shouldUseDarkColors ? '#1e1e1e' : '#ffffff',
-  })
+    backgroundColor: nativeTheme.shouldUseDarkColors ? "#1e1e1e" : "#ffffff",
+  });
 
-  windows.add(win)
+  windows.add(win);
 
-  win.once('ready-to-show', () => {
-    win.show()
+  win.once("ready-to-show", () => {
+    win.show();
     // If a file was specified for this window, send it now
     if (fileToOpen) {
-      sendFileToWindow(win, fileToOpen)
+      sendFileToWindow(win, fileToOpen);
     }
-  })
+  });
 
   if (process.env.VITE_DEV_SERVER_URL) {
-    win.loadURL(process.env.VITE_DEV_SERVER_URL)
+    win.loadURL(process.env.VITE_DEV_SERVER_URL);
   } else {
-    win.loadFile(path.join(__dirname, '../dist/index.html'))
+    win.loadFile(path.join(__dirname, "../dist/index.html"));
   }
 
-  win.on('closed', () => {
-    windows.delete(win)
-    windowFilePaths.delete(win)
-  })
+  win.on("closed", () => {
+    windows.delete(win);
+    windowFilePaths.delete(win);
+  });
 
-  return win
+  return win;
 }
 
 function sendFileToWindow(win: BrowserWindow, filePath: string) {
   try {
-    const resolved = path.resolve(filePath)
-    const content = fs.readFileSync(resolved, 'utf-8')
-    windowFilePaths.set(win, resolved)
-    win.webContents.send('har-file-opened', {
+    const resolved = path.resolve(filePath);
+    const content = fs.readFileSync(resolved, "utf-8");
+    windowFilePaths.set(win, resolved);
+    win.webContents.send("har-file-opened", {
       filePath: resolved,
       content,
       fileName: path.basename(resolved),
-    })
+    });
   } catch (err) {
-    console.error('Failed to read HAR file:', err)
+    console.error("Failed to read HAR file:", err);
   }
 }
 
 function findWindowForFile(filePath: string): BrowserWindow | null {
-  const resolved = path.resolve(filePath)
-  let found: BrowserWindow | null = null
+  const resolved = path.resolve(filePath);
+  let found: BrowserWindow | null = null;
   windowFilePaths.forEach((openPath, win) => {
     if (openPath === resolved) {
-      found = win
+      found = win;
     }
-  })
-  return found
+  });
+  return found;
 }
 
 function openFileInNewWindow(filePath: string) {
   // If this file is already open, just focus that window
-  const existing = findWindowForFile(filePath)
+  const existing = findWindowForFile(filePath);
   if (existing) {
-    existing.focus()
-    return
+    existing.focus();
+    return;
   }
 
   // If there's a window with no file loaded (welcome screen), reuse it
-  let emptyWindow: BrowserWindow | null = null
+  let emptyWindow: BrowserWindow | null = null;
   windows.forEach((win) => {
     if (!windowFilePaths.has(win)) {
-      emptyWindow = win
+      emptyWindow = win;
     }
-  })
+  });
   if (emptyWindow) {
-    (emptyWindow as BrowserWindow).focus()
-    sendFileToWindow(emptyWindow, filePath)
-    return
+    (emptyWindow as BrowserWindow).focus();
+    sendFileToWindow(emptyWindow, filePath);
+    return;
   }
 
-  createWindow(filePath)
+  createWindow(filePath);
 }
 
 // Handle file open dialog
-ipcMain.handle('open-file-dialog', async (event) => {
-  const win = BrowserWindow.fromWebContents(event.sender)
+ipcMain.handle("open-file-dialog", async (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
   const result = await dialog.showOpenDialog(win!, {
-    properties: ['openFile'],
+    properties: ["openFile"],
     filters: [
-      { name: 'HAR Files', extensions: ['har'] },
-      { name: 'All Files', extensions: ['*'] },
+      { name: "HAR Files", extensions: ["har"] },
+      { name: "All Files", extensions: ["*"] },
     ],
-  })
+  });
 
   if (!result.canceled && result.filePaths.length > 0) {
-    const filePath = result.filePaths[0]
+    const filePath = result.filePaths[0];
     try {
-      const content = fs.readFileSync(filePath, 'utf-8')
+      const content = fs.readFileSync(filePath, "utf-8");
       if (win) {
-        windowFilePaths.set(win, path.resolve(filePath))
+        windowFilePaths.set(win, path.resolve(filePath));
       }
       return {
         filePath,
         content,
         fileName: path.basename(filePath),
-      }
+      };
     } catch (err) {
-      console.error('Failed to read file:', err)
-      return null
+      console.error("Failed to read file:", err);
+      return null;
     }
   }
-  return null
-})
+  return null;
+});
 
 // Handle reading a file from a dropped path
-ipcMain.handle('read-har-file', async (event, filePath: string) => {
+ipcMain.handle("read-har-file", async (event, filePath: string) => {
   try {
-    const content = fs.readFileSync(filePath, 'utf-8')
-    const win = BrowserWindow.fromWebContents(event.sender)
+    const content = fs.readFileSync(filePath, "utf-8");
+    const win = BrowserWindow.fromWebContents(event.sender);
     if (win) {
-      windowFilePaths.set(win, path.resolve(filePath))
+      windowFilePaths.set(win, path.resolve(filePath));
     }
     return {
       filePath,
       content,
       fileName: path.basename(filePath),
-    }
+    };
   } catch (err) {
-    console.error('Failed to read file:', err)
-    return null
+    console.error("Failed to read file:", err);
+    return null;
   }
-})
+});
 
 // Handle theme query
-ipcMain.handle('get-native-theme', () => {
-  return nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
-})
+ipcMain.handle("get-native-theme", () => {
+  return nativeTheme.shouldUseDarkColors ? "dark" : "light";
+});
 
 // Handle theme mode changes (system, light, dark)
-ipcMain.handle('set-theme-mode', (_event, mode: 'system' | 'light' | 'dark') => {
-  nativeTheme.themeSource = mode
-})
+ipcMain.handle(
+  "set-theme-mode",
+  (_event, mode: "system" | "light" | "dark") => {
+    nativeTheme.themeSource = mode;
+  },
+);
 
 // Watch for theme changes
-nativeTheme.on('updated', () => {
-  const theme = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
+nativeTheme.on("updated", () => {
+  const theme = nativeTheme.shouldUseDarkColors ? "dark" : "light";
   windows.forEach((win) => {
-    win.webContents.send('theme-changed', theme)
-  })
-})
+    win.webContents.send("theme-changed", theme);
+  });
+});
 
 // Track when an update has been downloaded
-autoUpdater.on('update-downloaded', (info) => {
-  pendingUpdateVersion = info.version
-})
+autoUpdater.on("update-downloaded", (info) => {
+  pendingUpdateVersion = info.version;
+});
 
 // Update the macOS About panel options (called on launch and when an update is downloaded)
 function updateAboutPanel() {
-  const currentVersion = app.getVersion()
-  let credits = ''
+  const currentVersion = app.getVersion();
+  let credits = "";
   if (pendingUpdateVersion) {
-    credits = `Version ${pendingUpdateVersion} is ready — restart to install.`
+    credits = `Version ${pendingUpdateVersion} is ready — restart to install.`;
   }
   app.setAboutPanelOptions({
-    applicationName: 'Netscope',
+    applicationName: "Netscope",
     applicationVersion: currentVersion,
-    version: '', // Hide the secondary version string
+    version: "", // Hide the secondary version string
     copyright: `Copyright © ${new Date().getFullYear()} Drew Hays`,
     credits,
-  })
+  });
 }
 
 // Custom About dialog that shows update status
 async function showAbout() {
   if (isMac) {
-    updateAboutPanel()
-    app.showAboutPanel()
-    return
+    updateAboutPanel();
+    app.showAboutPanel();
+    return;
   }
 
-  const currentVersion = app.getVersion()
+  const currentVersion = app.getVersion();
   const lines = [
     `Version ${currentVersion}`,
-    '',
+    "",
     `Copyright © ${new Date().getFullYear()} Drew Hays`,
-  ]
+  ];
 
   if (pendingUpdateVersion) {
-    lines.push('', `Version ${pendingUpdateVersion} is ready — restart to install.`)
+    lines.push(
+      "",
+      `Version ${pendingUpdateVersion} is ready — restart to install.`,
+    );
   }
 
-  const buttons = pendingUpdateVersion ? ['Restart Now', 'OK'] : ['OK']
-  const iconPath = path.join(__dirname, '..', 'build', 'icon.png')
-  const focusedWindow = BrowserWindow.getFocusedWindow()
-  const result = await dialog.showMessageBox(focusedWindow ?? ({} as BrowserWindow), {
-    title: 'About Netscope',
-    message: 'Netscope',
-    detail: lines.join('\n'),
-    buttons,
-    icon: iconPath,
-  })
+  const buttons = pendingUpdateVersion ? ["Restart Now", "OK"] : ["OK"];
+  const iconPath = path.join(__dirname, "..", "build", "icon.png");
+  const focusedWindow = BrowserWindow.getFocusedWindow();
+  const result = await dialog.showMessageBox(
+    focusedWindow ?? ({} as BrowserWindow),
+    {
+      title: "About Netscope",
+      message: "Netscope",
+      detail: lines.join("\n"),
+      buttons,
+      icon: iconPath,
+    },
+  );
 
   // "Restart Now" is index 0 when an update is pending
   if (pendingUpdateVersion && result.response === 0) {
-    autoUpdater.quitAndInstall()
+    autoUpdater.quitAndInstall();
   }
 }
 
@@ -236,152 +256,156 @@ function buildMenu() {
           {
             label: app.name,
             submenu: [
-              { label: 'About Netscope', click: showAbout },
-              { type: 'separator' as const },
-              { role: 'services' as const },
-              { type: 'separator' as const },
-              { role: 'hide' as const },
-              { role: 'hideOthers' as const },
-              { role: 'unhide' as const },
-              { type: 'separator' as const },
-              { role: 'quit' as const },
+              { label: "About Netscope", click: showAbout },
+              { type: "separator" as const },
+              { role: "services" as const },
+              { type: "separator" as const },
+              { role: "hide" as const },
+              { role: "hideOthers" as const },
+              { role: "unhide" as const },
+              { type: "separator" as const },
+              { role: "quit" as const },
             ],
           },
         ]
       : []),
     {
-      label: 'File',
+      label: "File",
       submenu: [
         {
-          label: 'Open HAR File...',
-          accelerator: 'CmdOrCtrl+O',
+          label: "Open HAR File...",
+          accelerator: "CmdOrCtrl+O",
           click: async () => {
-            const focusedWindow = BrowserWindow.getFocusedWindow()
+            const focusedWindow = BrowserWindow.getFocusedWindow();
             const result = await dialog.showOpenDialog(focusedWindow!, {
-              properties: ['openFile'],
+              properties: ["openFile"],
               filters: [
-                { name: 'HAR Files', extensions: ['har'] },
-                { name: 'All Files', extensions: ['*'] },
+                { name: "HAR Files", extensions: ["har"] },
+                { name: "All Files", extensions: ["*"] },
               ],
-            })
+            });
             if (!result.canceled && result.filePaths.length > 0) {
               // Open in the focused window by sending to its renderer
               if (focusedWindow) {
-                sendFileToWindow(focusedWindow, result.filePaths[0])
+                sendFileToWindow(focusedWindow, result.filePaths[0]);
               } else {
-                openFileInNewWindow(result.filePaths[0])
+                openFileInNewWindow(result.filePaths[0]);
               }
             }
           },
         },
-        { type: 'separator' },
-        ...(isMac ? [{ role: 'close' as const }] : [{ role: 'quit' as const }]),
+        { type: "separator" },
+        ...(isMac ? [{ role: "close" as const }] : [{ role: "quit" as const }]),
       ],
     },
     {
-      label: 'Edit',
+      label: "Edit",
       submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-        { role: 'selectAll' },
+        { role: "undo" },
+        { role: "redo" },
+        { type: "separator" },
+        { role: "cut" },
+        { role: "copy" },
+        { role: "paste" },
+        { role: "selectAll" },
       ],
     },
     {
-      label: 'View',
+      label: "View",
       submenu: [
-        { role: 'reload' },
-        { role: 'forceReload' },
-        { role: 'toggleDevTools' },
-        { type: 'separator' },
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' },
-        { type: 'separator' },
-        { role: 'togglefullscreen' },
+        { role: "reload" },
+        { role: "forceReload" },
+        { role: "toggleDevTools" },
+        { type: "separator" },
+        { role: "resetZoom" },
+        { role: "zoomIn" },
+        { role: "zoomOut" },
+        { type: "separator" },
+        { role: "togglefullscreen" },
       ],
     },
     {
-      label: 'Window',
+      label: "Window",
       submenu: [
-        { role: 'minimize' },
+        { role: "minimize" },
         ...(isMac
           ? [
-              { role: 'zoom' as const },
-              { type: 'separator' as const },
-              { role: 'front' as const },
+              { role: "zoom" as const },
+              { type: "separator" as const },
+              { role: "front" as const },
             ]
-          : [{ role: 'close' as const }]),
+          : [{ role: "close" as const }]),
       ],
     },
     {
-      role: 'help',
+      role: "help",
       submenu: [
         {
-          label: 'Netscope Website',
-          click: () => { shell.openExternal('https://netscopeapp.com') },
+          label: "Netscope Website",
+          click: () => {
+            shell.openExternal("https://netscopeapp.com");
+          },
         },
         {
-          label: 'Report an Issue',
-          click: () => { shell.openExternal('https://github.com/Dru89/netscope/issues') },
+          label: "Report an Issue",
+          click: () => {
+            shell.openExternal("https://github.com/Dru89/netscope/issues");
+          },
         },
         ...(!isMac
           ? [
-              { type: 'separator' as const },
-              { label: 'About Netscope', click: showAbout },
+              { type: "separator" as const },
+              { label: "About Netscope", click: showAbout },
             ]
           : []),
       ],
     },
-  ]
+  ];
 
-  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
 // macOS: Handle file open via Finder double-click or drag onto dock icon
-app.on('open-file', (event, filePath) => {
-  event.preventDefault()
+app.on("open-file", (event, filePath) => {
+  event.preventDefault();
   if (app.isReady()) {
     // App is running — always open a new window for the file
-    openFileInNewWindow(filePath)
+    openFileInNewWindow(filePath);
   } else {
     // App is still launching — store it and the initial window will pick it up
-    pendingFile = filePath
+    pendingFile = filePath;
   }
-})
+});
 
 app.whenReady().then(() => {
-  buildMenu()
+  buildMenu();
 
   // Check if launched with a file argument (e.g., from command line)
-  const args = process.argv.slice(1)
+  const args = process.argv.slice(1);
   const harFile = args.find(
-    (arg) => arg.endsWith('.har') && fs.existsSync(arg)
-  )
+    (arg) => arg.endsWith(".har") && fs.existsSync(arg),
+  );
   if (harFile && !pendingFile) {
-    pendingFile = path.resolve(harFile)
+    pendingFile = path.resolve(harFile);
   }
 
   // Create the initial window, passing the pending file if any
-  createWindow(pendingFile || undefined)
-  pendingFile = null
+  createWindow(pendingFile || undefined);
+  pendingFile = null;
 
   // Check for updates silently — download in the background, install on quit
-  autoUpdater.autoDownload = true
-  autoUpdater.autoInstallOnAppQuit = true
-  autoUpdater.logger = null // Suppress verbose logging
-  autoUpdater.checkForUpdates()
-})
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+  autoUpdater.logger = null; // Suppress verbose logging
+  autoUpdater.checkForUpdates();
+});
 
-app.on('window-all-closed', () => {
-  if (!isMac) app.quit()
-})
+app.on("window-all-closed", () => {
+  if (!isMac) app.quit();
+});
 
-app.on('activate', () => {
+app.on("activate", () => {
   if (windows.size === 0) {
-    createWindow()
+    createWindow();
   }
-})
+});

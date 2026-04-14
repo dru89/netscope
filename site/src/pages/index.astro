@@ -1,8 +1,8 @@
 ---
-import Layout from '../layouts/Layout.astro'
+import Layout from "../layouts/Layout.astro";
 
-const repoUrl = 'https://github.com/Dru89/netscope'
-const releaseUrl = `${repoUrl}/releases/latest`
+const repoUrl = "https://github.com/Dru89/netscope";
+const releaseUrl = `${repoUrl}/releases/latest`;
 ---
 
 <Layout title="Netscope — Inspect and Analyze HAR Files on Your Desktop">
@@ -16,7 +16,9 @@ const releaseUrl = `${repoUrl}/releases/latest`
         <div class="nav-links">
           <a href="#features">Features</a>
           <a href={repoUrl}>GitHub</a>
-          <a href={releaseUrl} class="nav-download" id="nav-download">Download</a>
+          <a href={releaseUrl} class="nav-download" id="nav-download"
+            >Download</a
+          >
         </div>
       </nav>
     </div>
@@ -28,22 +30,34 @@ const releaseUrl = `${repoUrl}/releases/latest`
         <img src="/netscope-icon.png" alt="Netscope icon" class="hero-icon" />
         <h1 class="hero-title">Inspect HAR files<br />on your desktop.</h1>
         <p class="hero-subtitle">
-          A desktop app for viewing and analyzing HTTP Archive files.
-          The same network inspection experience as Chrome DevTools, but as a standalone app.
-          Available for macOS, Windows, and Linux.
+          A desktop app for viewing and analyzing HTTP Archive files. The same
+          network inspection experience as Chrome DevTools, but as a standalone
+          app. Available for macOS, Windows, and Linux.
         </p>
         <div class="hero-actions">
-          <a href={releaseUrl} class="btn btn-primary download-primary is-loading">Download</a>
+          <a
+            href={releaseUrl}
+            class="btn btn-primary download-primary is-loading">Download</a
+          >
           <a href={repoUrl} class="btn btn-secondary">View on GitHub</a>
         </div>
         <p class="download-alt is-hidden">
           Also available for
-          <a class="download-alt-link" data-platform="mac" href={releaseUrl}>macOS</a>,
-          <a class="download-alt-link" data-platform="win" href={releaseUrl}>Windows</a>, and
-          <a class="download-alt-link" data-platform="linux" href={releaseUrl}>Linux</a>.
+          <a class="download-alt-link" data-platform="mac" href={releaseUrl}
+            >macOS</a
+          >,
+          <a class="download-alt-link" data-platform="win" href={releaseUrl}
+            >Windows</a
+          >, and
+          <a class="download-alt-link" data-platform="linux" href={releaseUrl}
+            >Linux</a
+          >.
         </p>
         <div class="hero-screenshot">
-          <img src="/main-screen.png" alt="Netscope showing a list of network requests with waterfall chart" />
+          <img
+            src="/main-screen.png"
+            alt="Netscope showing a list of network requests with waterfall chart"
+          />
         </div>
       </div>
     </section>
@@ -56,13 +70,20 @@ const releaseUrl = `${repoUrl}/releases/latest`
           <div class="feature-text">
             <h3>Filter and search</h3>
             <p>
-              Narrow down requests by content type -- XHR, JS, CSS, images, fonts, and more.
-              Search by URL to find exactly what you're looking for. Sort by any column.
+              Narrow down requests by content type -- XHR, JS, CSS, images,
+              fonts, and more. Search by URL to find exactly what you're looking
+              for. Sort by any column.
             </p>
           </div>
           <div class="feature-images">
-            <img src="/main-screen-filter.png" alt="Filtering requests by image type" />
-            <img src="/main-screen-search.png" alt="Searching requests by URL" />
+            <img
+              src="/main-screen-filter.png"
+              alt="Filtering requests by image type"
+            />
+            <img
+              src="/main-screen-search.png"
+              alt="Searching requests by URL"
+            />
           </div>
         </div>
 
@@ -70,12 +91,16 @@ const releaseUrl = `${repoUrl}/releases/latest`
           <div class="feature-text">
             <h3>Detailed request inspection</h3>
             <p>
-              Click any request to inspect headers, payload, response body, cookies, and timing data.
-              See status codes, remote addresses, content types, and transfer sizes at a glance.
+              Click any request to inspect headers, payload, response body,
+              cookies, and timing data. See status codes, remote addresses,
+              content types, and transfer sizes at a glance.
             </p>
           </div>
           <div class="feature-image">
-            <img src="/details-headers.png" alt="Detail panel showing headers for an XHR request" />
+            <img
+              src="/details-headers.png"
+              alt="Detail panel showing headers for an XHR request"
+            />
           </div>
         </div>
 
@@ -83,12 +108,16 @@ const releaseUrl = `${repoUrl}/releases/latest`
           <div class="feature-text">
             <h3>Timing breakdown</h3>
             <p>
-              Visualize the request lifecycle -- queueing, stalled, send, wait (TTFB), and receive --
-              with a horizontal bar chart. Identify bottlenecks in your network requests.
+              Visualize the request lifecycle -- queueing, stalled, send, wait
+              (TTFB), and receive -- with a horizontal bar chart. Identify
+              bottlenecks in your network requests.
             </p>
           </div>
           <div class="feature-image">
-            <img src="/details-timing.png" alt="Timing breakdown showing TTFB and other phases" />
+            <img
+              src="/details-timing.png"
+              alt="Timing breakdown showing TTFB and other phases"
+            />
           </div>
         </div>
 
@@ -96,12 +125,16 @@ const releaseUrl = `${repoUrl}/releases/latest`
           <div class="feature-text">
             <h3>Source search</h3>
             <p>
-              View the raw HAR JSON for any entry and search through it with match highlighting.
-              Navigate between matches with keyboard shortcuts.
+              View the raw HAR JSON for any entry and search through it with
+              match highlighting. Navigate between matches with keyboard
+              shortcuts.
             </p>
           </div>
           <div class="feature-image">
-            <img src="/details-raw-with-search.png" alt="Source tab with search highlighting" />
+            <img
+              src="/details-raw-with-search.png"
+              alt="Source tab with search highlighting"
+            />
           </div>
         </div>
 
@@ -109,8 +142,9 @@ const releaseUrl = `${repoUrl}/releases/latest`
           <div class="feature-text">
             <h3>Dark mode</h3>
             <p>
-              Switch between System, Light, and Dark themes. Your preference is saved across sessions.
-              The app follows your system appearance by default.
+              Switch between System, Light, and Dark themes. Your preference is
+              saved across sessions. The app follows your system appearance by
+              default.
             </p>
           </div>
           <div class="feature-image">
@@ -126,23 +160,38 @@ const releaseUrl = `${repoUrl}/releases/latest`
         <div class="extras-grid">
           <div class="extra">
             <h4>Multi-window</h4>
-            <p>Each HAR file opens in its own window. Already-open files are focused instead of duplicated.</p>
+            <p>
+              Each HAR file opens in its own window. Already-open files are
+              focused instead of duplicated.
+            </p>
           </div>
           <div class="extra">
             <h4>Drag and drop</h4>
-            <p>Drop a .har file onto the app window or double-click it in your file manager to open.</p>
+            <p>
+              Drop a .har file onto the app window or double-click it in your
+              file manager to open.
+            </p>
           </div>
           <div class="extra">
             <h4>Cache detection</h4>
-            <p>Responses served from the browser cache are labeled "(from disk cache)" on the status code.</p>
+            <p>
+              Responses served from the browser cache are labeled "(from disk
+              cache)" on the status code.
+            </p>
           </div>
           <div class="extra">
             <h4>Auto-updates</h4>
-            <p>The app checks for updates automatically and installs them when you quit.</p>
+            <p>
+              The app checks for updates automatically and installs them when
+              you quit.
+            </p>
           </div>
           <div class="extra">
             <h4>Code signed</h4>
-            <p>macOS builds are signed with a Developer ID certificate and notarized by Apple. No Gatekeeper warnings.</p>
+            <p>
+              macOS builds are signed with a Developer ID certificate and
+              notarized by Apple. No Gatekeeper warnings.
+            </p>
           </div>
           <div class="extra">
             <h4>Open source</h4>
@@ -157,14 +206,23 @@ const releaseUrl = `${repoUrl}/releases/latest`
         <h2>Ready to explore?</h2>
         <p>Download Netscope and start inspecting your network requests.</p>
         <div class="hero-actions">
-          <a href={releaseUrl} class="btn btn-primary download-primary is-loading">Download</a>
+          <a
+            href={releaseUrl}
+            class="btn btn-primary download-primary is-loading">Download</a
+          >
           <a href={repoUrl} class="btn btn-secondary">View on GitHub</a>
         </div>
         <p class="download-alt is-hidden">
           Also available for
-          <a class="download-alt-link" data-platform="mac" href={releaseUrl}>macOS</a>,
-          <a class="download-alt-link" data-platform="win" href={releaseUrl}>Windows</a>, and
-          <a class="download-alt-link" data-platform="linux" href={releaseUrl}>Linux</a>.
+          <a class="download-alt-link" data-platform="mac" href={releaseUrl}
+            >macOS</a
+          >,
+          <a class="download-alt-link" data-platform="win" href={releaseUrl}
+            >Windows</a
+          >, and
+          <a class="download-alt-link" data-platform="linux" href={releaseUrl}
+            >Linux</a
+          >.
         </p>
       </div>
     </section>
@@ -173,9 +231,8 @@ const releaseUrl = `${repoUrl}/releases/latest`
   <footer class="footer">
     <div class="container">
       <p>
-        Built by <a href="https://github.com/Dru89">Drew Hays</a>.
-        Open source on <a href={repoUrl}>GitHub</a>.
-        Licensed under MIT.
+        Built by <a href="https://github.com/Dru89">Drew Hays</a>. Open source
+        on <a href={repoUrl}>GitHub</a>. Licensed under MIT.
       </p>
     </div>
   </footer>
@@ -321,12 +378,16 @@ const releaseUrl = `${repoUrl}/releases/latest`
     width: 100%;
     max-width: var(--max-width);
     border-radius: 12px;
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
+    box-shadow:
+      0 8px 40px rgba(0, 0, 0, 0.12),
+      0 0 0 1px rgba(0, 0, 0, 0.06);
   }
 
   @media (prefers-color-scheme: dark) {
     .hero-screenshot img {
-      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.06);
+      box-shadow:
+        0 8px 40px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.06);
     }
   }
 
@@ -375,13 +436,17 @@ const releaseUrl = `${repoUrl}/releases/latest`
   .feature-images img {
     width: 100%;
     border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.08),
+      0 0 0 1px rgba(0, 0, 0, 0.04);
   }
 
   @media (prefers-color-scheme: dark) {
     .feature-image img,
     .feature-images img {
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.04);
+      box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.04);
     }
   }
 
@@ -531,109 +596,124 @@ const releaseUrl = `${repoUrl}/releases/latest`
 </style>
 
 <script>
-  const API_URL = 'https://api.github.com/repos/Dru89/netscope/releases/latest'
-  const FALLBACK_URL = 'https://github.com/Dru89/netscope/releases/latest'
-  const REPO_URL = 'https://github.com/Dru89/netscope'
+  const API_URL = "https://api.github.com/repos/Dru89/netscope/releases/latest";
+  const FALLBACK_URL = "https://github.com/Dru89/netscope/releases/latest";
+  const REPO_URL = "https://github.com/Dru89/netscope";
 
   const PLATFORM_PATTERNS: Record<string, RegExp> = {
     mac: /\.dmg$/,
     win: /\.exe$/,
     linux: /\.AppImage$/,
-  }
+  };
 
   const PLATFORM_LABELS: Record<string, string> = {
-    mac: 'Download for macOS',
-    win: 'Download for Windows',
-    linux: 'Download for Linux',
-  }
+    mac: "Download for macOS",
+    win: "Download for Windows",
+    linux: "Download for Linux",
+  };
 
   function detectPlatform(): string | null {
-    const ua = navigator.userAgent.toLowerCase()
-    if (ua.includes('mac')) return 'mac'
-    if (ua.includes('win')) return 'win'
-    if (ua.includes('linux')) return 'linux'
-    return null
+    const ua = navigator.userAgent.toLowerCase();
+    if (ua.includes("mac")) return "mac";
+    if (ua.includes("win")) return "win";
+    if (ua.includes("linux")) return "linux";
+    return null;
   }
 
   async function loadDownloadLinks() {
-    const userPlatform = detectPlatform()
+    const userPlatform = detectPlatform();
 
     try {
-      const res = await fetch(API_URL)
-      if (!res.ok) throw new Error(`GitHub API returned ${res.status}`)
-      const release = await res.json()
+      const res = await fetch(API_URL);
+      if (!res.ok) throw new Error(`GitHub API returned ${res.status}`);
+      const release = await res.json();
 
       // Build a map of platform -> download URL
-      const urls: Record<string, string> = {}
+      const urls: Record<string, string> = {};
       for (const asset of release.assets) {
         for (const [platform, pattern] of Object.entries(PLATFORM_PATTERNS)) {
           if (pattern.test(asset.name) && !urls[platform]) {
             // For macOS, prefer the arm64 DMG
-            if (platform === 'mac' && !asset.name.includes('arm64')) continue
-            urls[platform] = asset.browser_download_url
+            if (platform === "mac" && !asset.name.includes("arm64")) continue;
+            urls[platform] = asset.browser_download_url;
           }
         }
       }
       // Fall back to any DMG if no arm64 was found
       if (!urls.mac) {
-        const dmg = release.assets.find((a: { name: string }) => /\.dmg$/.test(a.name))
-        if (dmg) urls.mac = dmg.browser_download_url
+        const dmg = release.assets.find((a: { name: string }) =>
+          /\.dmg$/.test(a.name),
+        );
+        if (dmg) urls.mac = dmg.browser_download_url;
       }
 
       // Set the primary download buttons (hero + CTA)
-      const primaryPlatform = userPlatform ?? 'mac'
-      const primaryUrl = urls[primaryPlatform] ?? FALLBACK_URL
+      const primaryPlatform = userPlatform ?? "mac";
+      const primaryUrl = urls[primaryPlatform] ?? FALLBACK_URL;
 
-      document.querySelectorAll<HTMLAnchorElement>('.download-primary').forEach((btn) => {
-        btn.href = primaryUrl
-        btn.textContent = PLATFORM_LABELS[primaryPlatform] ?? 'Download'
-        btn.classList.remove('is-loading')
-      })
+      document
+        .querySelectorAll<HTMLAnchorElement>(".download-primary")
+        .forEach((btn) => {
+          btn.href = primaryUrl;
+          btn.textContent = PLATFORM_LABELS[primaryPlatform] ?? "Download";
+          btn.classList.remove("is-loading");
+        });
 
       // Set the nav header download button
-      const navDownload = document.getElementById('nav-download') as HTMLAnchorElement | null
+      const navDownload = document.getElementById(
+        "nav-download",
+      ) as HTMLAnchorElement | null;
       if (navDownload) {
-        navDownload.href = primaryUrl
+        navDownload.href = primaryUrl;
       }
 
       // Set "also available" links and show them
-      document.querySelectorAll<HTMLAnchorElement>('.download-alt-link').forEach((link) => {
-        const platform = link.dataset.platform
-        if (platform && urls[platform]) {
-          link.href = urls[platform]
-        }
-        // Hide the link for the user's current platform
-        if (platform === primaryPlatform) {
-          link.classList.add('is-current')
-        }
-      })
+      document
+        .querySelectorAll<HTMLAnchorElement>(".download-alt-link")
+        .forEach((link) => {
+          const platform = link.dataset.platform;
+          if (platform && urls[platform]) {
+            link.href = urls[platform];
+          }
+          // Hide the link for the user's current platform
+          if (platform === primaryPlatform) {
+            link.classList.add("is-current");
+          }
+        });
 
       // Build the "also available" text dynamically based on which
       // platforms are not the current one
-      const otherPlatforms = ['mac', 'win', 'linux'].filter((p) => p !== primaryPlatform)
-      document.querySelectorAll('.download-alt').forEach((el) => {
-        const links = otherPlatforms.map((p) => {
-          const link = el.querySelector<HTMLAnchorElement>(`.download-alt-link[data-platform="${p}"]`)
-          return link?.outerHTML ?? ''
-        }).filter(Boolean)
+      const otherPlatforms = ["mac", "win", "linux"].filter(
+        (p) => p !== primaryPlatform,
+      );
+      document.querySelectorAll(".download-alt").forEach((el) => {
+        const links = otherPlatforms
+          .map((p) => {
+            const link = el.querySelector<HTMLAnchorElement>(
+              `.download-alt-link[data-platform="${p}"]`,
+            );
+            return link?.outerHTML ?? "";
+          })
+          .filter(Boolean);
 
         if (links.length === 2) {
-          el.innerHTML = `Also available for ${links[0]} and ${links[1]}.`
+          el.innerHTML = `Also available for ${links[0]} and ${links[1]}.`;
         } else if (links.length === 1) {
-          el.innerHTML = `Also available for ${links[0]}.`
+          el.innerHTML = `Also available for ${links[0]}.`;
         }
-        el.classList.remove('is-hidden')
-      })
-
+        el.classList.remove("is-hidden");
+      });
     } catch {
       // API failed — just enable the buttons with fallback URLs
-      document.querySelectorAll<HTMLAnchorElement>('.download-primary').forEach((btn) => {
-        btn.href = FALLBACK_URL
-        btn.textContent = 'Download'
-        btn.classList.remove('is-loading')
-      })
+      document
+        .querySelectorAll<HTMLAnchorElement>(".download-primary")
+        .forEach((btn) => {
+          btn.href = FALLBACK_URL;
+          btn.textContent = "Download";
+          btn.classList.remove("is-loading");
+        });
     }
   }
 
-  loadDownloadLinks()
+  loadDownloadLinks();
 </script>

@@ -98,21 +98,21 @@ The app supports keyboard navigation, implemented across `RequestTable.tsx` (tab
 
 ### Table-scoped (when request table has focus)
 
-| Shortcut | Action |
-|---|---|
-| Up / k | Select previous entry |
-| Down / j | Select next entry |
-| Cmd+Up / Home | Select first entry |
-| Cmd+Down / End | Select last entry |
-| Enter / Space | Toggle detail panel for selected entry |
+| Shortcut       | Action                                 |
+| -------------- | -------------------------------------- |
+| Up / k         | Select previous entry                  |
+| Down / j       | Select next entry                      |
+| Cmd+Up / Home  | Select first entry                     |
+| Cmd+Down / End | Select last entry                      |
+| Enter / Space  | Toggle detail panel for selected entry |
 
 ### Global
 
-| Shortcut | Action |
-|---|---|
-| Escape | Close detail panel and return focus to table; blur filter input |
-| / | Focus the toolbar filter input |
-| Cmd+F | Focus the toolbar filter (unless focus is in the detail panel) |
+| Shortcut | Action                                                          |
+| -------- | --------------------------------------------------------------- |
+| Escape   | Close detail panel and return focus to table; blur filter input |
+| /        | Focus the toolbar filter input                                  |
+| Cmd+F    | Focus the toolbar filter (unless focus is in the detail panel)  |
 
 **Focus model:** The table container (`div.request-table-container`) has `tabIndex={0}` and handles its own `onKeyDown`. When focus moves elsewhere (detail panel, filter input), table shortcuts stop firing. This is intentional -- arrow keys in the detail panel scroll content, not the entry list. Escape returns focus to the table.
 
@@ -124,17 +124,17 @@ The toolbar search input supports Chrome DevTools-style structured filters via `
 
 ### Supported filters
 
-| Filter | Example | What it matches |
-|---|---|---|
-| (plain text) | `api` | URL or entry name substring |
-| `domain:` | `domain:*.example.com` | Request domain (wildcard supported) |
-| `method:` | `method:POST` | HTTP method |
-| `status-code:` | `status-code:4xx` | Status code (exact or range like `4xx`) |
-| `mime-type:` | `mime-type:json` | Response MIME type substring |
-| `larger-than:` | `larger-than:1k` | Transfer size threshold (supports `k`, `M`) |
-| `scheme:` | `scheme:https` | URL scheme |
-| `has-response-header:` | `has-response-header:x-custom` | Presence of a response header |
-| `url:` | `url:/api/v2` | URL substring (explicit) |
+| Filter                 | Example                        | What it matches                             |
+| ---------------------- | ------------------------------ | ------------------------------------------- |
+| (plain text)           | `api`                          | URL or entry name substring                 |
+| `domain:`              | `domain:*.example.com`         | Request domain (wildcard supported)         |
+| `method:`              | `method:POST`                  | HTTP method                                 |
+| `status-code:`         | `status-code:4xx`              | Status code (exact or range like `4xx`)     |
+| `mime-type:`           | `mime-type:json`               | Response MIME type substring                |
+| `larger-than:`         | `larger-than:1k`               | Transfer size threshold (supports `k`, `M`) |
+| `scheme:`              | `scheme:https`                 | URL scheme                                  |
+| `has-response-header:` | `has-response-header:x-custom` | Presence of a response header               |
+| `url:`                 | `url:/api/v2`                  | URL substring (explicit)                    |
 
 - Multiple filters are AND'd together
 - Prefix any filter with `-` to negate it: `-domain:analytics.com`
@@ -183,13 +183,13 @@ Releases are built and published by **GitHub Actions** (`.github/workflows/relea
 
 ### Required GitHub Actions secrets
 
-| Secret | Purpose |
-|---|---|
-| `MAC_CERTIFICATE_BASE64` | Base64-encoded .p12 Developer ID certificate |
-| `MAC_CERTIFICATE_PASSWORD` | Password for the .p12 file |
-| `APPLE_ID` | Apple ID email for notarization |
-| `APPLE_APP_SPECIFIC_PASSWORD` | App-specific password for notarization |
-| `APPLE_TEAM_ID` | Apple Developer Team ID |
+| Secret                        | Purpose                                      |
+| ----------------------------- | -------------------------------------------- |
+| `MAC_CERTIFICATE_BASE64`      | Base64-encoded .p12 Developer ID certificate |
+| `MAC_CERTIFICATE_PASSWORD`    | Password for the .p12 file                   |
+| `APPLE_ID`                    | Apple ID email for notarization              |
+| `APPLE_APP_SPECIFIC_PASSWORD` | App-specific password for notarization       |
+| `APPLE_TEAM_ID`               | Apple Developer Team ID                      |
 
 `GITHUB_TOKEN` is provided automatically by Actions. If any macOS secrets are missing, the build still succeeds but produces unsigned/un-notarized artifacts.
 
@@ -200,6 +200,7 @@ Releases are built and published by **GitHub Actions** (`.github/workflows/relea
 ## App Icon
 
 The source icon is `images/netscope.png` (2048x2048 RGBA). Platform-specific icons in `build/`:
+
 - `icon.icns` -- macOS (generated with `sips` + `iconutil`)
 - `icon.ico` -- Windows (generated with ImageMagick: `magick images/netscope.png -resize 256x256 -define icon:auto-resize=256,128,64,48,32,16 build/icon.ico`)
 - `icon.png` -- Linux (512x512, generated with `sips -z 512 512`)
@@ -218,6 +219,7 @@ Site favicons in `site/public/` are also derived from the source image. If the i
 ## Keeping This File Up to Date
 
 When you make changes to the project, update this file to reflect them. Specifically:
+
 - New commands or scripts: add to Key Commands
 - New keyboard shortcuts: add to the Keyboard Shortcuts table
 - New filter types: add to the Filter Syntax table

@@ -22,8 +22,8 @@ Every request is displayed in a sortable table with method, status, content type
 
 Use the content type tabs (XHR, JS, CSS, Img, Font, Doc, Media, Other) to narrow down the list, or type in the search bar to filter by URL.
 
-| Filter by type | Search by URL |
-|---|---|
+| Filter by type                                            | Search by URL                                            |
+| --------------------------------------------------------- | -------------------------------------------------------- |
 | ![Filtering by image type](images/main-screen-filter.png) | ![Searching for "player"](images/main-screen-search.png) |
 
 ### Detailed request inspection

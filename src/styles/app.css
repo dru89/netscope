@@ -437,13 +437,34 @@
   flex-shrink: 0;
 }
 
-.type-badge.document { background: color-mix(in srgb, var(--color-type-document) 15%, transparent); color: var(--color-type-document); }
-.type-badge.stylesheet { background: color-mix(in srgb, var(--color-type-stylesheet) 15%, transparent); color: var(--color-type-stylesheet); }
-.type-badge.script { background: color-mix(in srgb, var(--color-type-script) 15%, transparent); color: var(--color-type-script); }
-.type-badge.image { background: color-mix(in srgb, var(--color-type-image) 15%, transparent); color: var(--color-type-image); }
-.type-badge.font { background: color-mix(in srgb, var(--color-type-font) 15%, transparent); color: var(--color-type-font); }
-.type-badge.xhr { background: color-mix(in srgb, var(--color-type-xhr) 15%, transparent); color: var(--color-type-xhr); }
-.type-badge.other { background: color-mix(in srgb, var(--color-type-other) 15%, transparent); color: var(--color-type-other); }
+.type-badge.document {
+  background: color-mix(in srgb, var(--color-type-document) 15%, transparent);
+  color: var(--color-type-document);
+}
+.type-badge.stylesheet {
+  background: color-mix(in srgb, var(--color-type-stylesheet) 15%, transparent);
+  color: var(--color-type-stylesheet);
+}
+.type-badge.script {
+  background: color-mix(in srgb, var(--color-type-script) 15%, transparent);
+  color: var(--color-type-script);
+}
+.type-badge.image {
+  background: color-mix(in srgb, var(--color-type-image) 15%, transparent);
+  color: var(--color-type-image);
+}
+.type-badge.font {
+  background: color-mix(in srgb, var(--color-type-font) 15%, transparent);
+  color: var(--color-type-font);
+}
+.type-badge.xhr {
+  background: color-mix(in srgb, var(--color-type-xhr) 15%, transparent);
+  color: var(--color-type-xhr);
+}
+.type-badge.other {
+  background: color-mix(in srgb, var(--color-type-other) 15%, transparent);
+  color: var(--color-type-other);
+}
 
 .status-code {
   font-family: var(--font-mono);
@@ -917,7 +938,7 @@
 
 /* Drag over effect */
 .app.drag-over::after {
-  content: 'Drop HAR file here';
+  content: "Drop HAR file here";
   position: fixed;
   inset: 0;
   background: rgba(25, 118, 210, 0.1);

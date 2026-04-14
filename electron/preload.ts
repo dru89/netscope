@@ -1,32 +1,32 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer } from "electron";
 
 export interface HarFileData {
-  filePath: string
-  content: string
-  fileName: string
+  filePath: string;
+  content: string;
+  fileName: string;
 }
 
-contextBridge.exposeInMainWorld('electronAPI', {
+contextBridge.exposeInMainWorld("electronAPI", {
   openFileDialog: (): Promise<HarFileData | null> =>
-    ipcRenderer.invoke('open-file-dialog'),
+    ipcRenderer.invoke("open-file-dialog"),
   readHarFile: (filePath: string): Promise<HarFileData | null> =>
-    ipcRenderer.invoke('read-har-file', filePath),
-  getNativeTheme: (): Promise<'dark' | 'light'> =>
-    ipcRenderer.invoke('get-native-theme'),
-  setThemeMode: (mode: 'system' | 'light' | 'dark'): Promise<void> =>
-    ipcRenderer.invoke('set-theme-mode', mode),
+    ipcRenderer.invoke("read-har-file", filePath),
+  getNativeTheme: (): Promise<"dark" | "light"> =>
+    ipcRenderer.invoke("get-native-theme"),
+  setThemeMode: (mode: "system" | "light" | "dark"): Promise<void> =>
+    ipcRenderer.invoke("set-theme-mode", mode),
   onHarFileOpened: (callback: (data: HarFileData) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: HarFileData) =>
-      callback(data)
-    ipcRenderer.on('har-file-opened', handler)
-    return () => ipcRenderer.removeListener('har-file-opened', handler)
+      callback(data);
+    ipcRenderer.on("har-file-opened", handler);
+    return () => ipcRenderer.removeListener("har-file-opened", handler);
   },
-  onThemeChanged: (callback: (theme: 'dark' | 'light') => void) => {
+  onThemeChanged: (callback: (theme: "dark" | "light") => void) => {
     const handler = (
       _event: Electron.IpcRendererEvent,
-      theme: 'dark' | 'light'
-    ) => callback(theme)
-    ipcRenderer.on('theme-changed', handler)
-    return () => ipcRenderer.removeListener('theme-changed', handler)
+      theme: "dark" | "light",
+    ) => callback(theme);
+    ipcRenderer.on("theme-changed", handler);
+    return () => ipcRenderer.removeListener("theme-changed", handler);
   },
-})
+});

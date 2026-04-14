@@ -1,11 +1,12 @@
 ---
 interface Props {
-  title: string
+  title: string;
 }
 
-const { title } = Astro.props
-const siteUrl = 'https://netscopeapp.com'
-const description = 'A desktop app for inspecting HTTP Archive (HAR) files. Filter, search, and analyze network requests locally. Available for macOS, Windows, and Linux.'
+const { title } = Astro.props;
+const siteUrl = "https://netscopeapp.com";
+const description =
+  "A desktop app for inspecting HTTP Archive (HAR) files. Filter, search, and analyze network requests locally. Available for macOS, Windows, and Linux.";
 ---
 
 <!doctype html>
@@ -52,8 +53,10 @@ const description = 'A desktop app for inspecting HTTP Archive (HAR) files. Filt
     --color-accent: #2563eb;
     --color-accent-hover: #1d4ed8;
     --color-border: #e5e7eb;
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-mono: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
+    --font-sans:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono:
+      "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
     --max-width: 960px;
   }
 

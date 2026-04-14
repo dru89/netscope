@@ -58,9 +58,10 @@
   --titlebar-height: 52px;
   --toolbar-height: 40px;
   --summary-height: 32px;
-  --font-mono: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue',
-    Arial, sans-serif;
+  --font-mono: "SF Mono", "Menlo", "Monaco", "Consolas", monospace;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial,
+    sans-serif;
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;

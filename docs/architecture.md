@@ -41,13 +41,13 @@ The preload script runs in a sandboxed context and uses `contextBridge.exposeInM
 
 The exposed API:
 
-| Method | Direction | Purpose |
-|--------|-----------|---------|
-| `openFileDialog()` | Renderer -> Main | Opens native file picker, returns file content |
-| `readHarFile(path)` | Renderer -> Main | Reads a file by path (used for drag-and-drop) |
-| `getNativeTheme()` | Renderer -> Main | Returns current system theme |
-| `onHarFileOpened(cb)` | Main -> Renderer | Listener for files opened via Finder/menu |
-| `onThemeChanged(cb)` | Main -> Renderer | Listener for system theme changes |
+| Method                | Direction        | Purpose                                        |
+| --------------------- | ---------------- | ---------------------------------------------- |
+| `openFileDialog()`    | Renderer -> Main | Opens native file picker, returns file content |
+| `readHarFile(path)`   | Renderer -> Main | Reads a file by path (used for drag-and-drop)  |
+| `getNativeTheme()`    | Renderer -> Main | Returns current system theme                   |
+| `onHarFileOpened(cb)` | Main -> Renderer | Listener for files opened via Finder/menu      |
+| `onThemeChanged(cb)`  | Main -> Renderer | Listener for system theme changes              |
 
 Each listener method returns an unsubscribe function for cleanup in React `useEffect` hooks.
 

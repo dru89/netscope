@@ -1,5 +1,5 @@
-import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
-import type { HarEntry } from '../types/har'
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
+import type { HarEntry } from "../types/har";
 import {
   formatBytes,
   formatTime,
@@ -13,26 +13,32 @@ import {
   prettyPrintJson,
   detectLanguage,
   isFromCache,
-} from '../utils/har'
+} from "../utils/har";
 
 interface DetailPanelProps {
-  entry: HarEntry
-  onClose: () => void
+  entry: HarEntry;
+  onClose: () => void;
 }
 
-type DetailTab = 'headers' | 'payload' | 'response' | 'timing' | 'cookies' | 'source'
+type DetailTab =
+  | "headers"
+  | "payload"
+  | "response"
+  | "timing"
+  | "cookies"
+  | "source";
 
 export function DetailPanel({ entry, onClose }: DetailPanelProps) {
-  const [activeTab, setActiveTab] = useState<DetailTab>('headers')
+  const [activeTab, setActiveTab] = useState<DetailTab>("headers");
 
   const tabs: { id: DetailTab; label: string }[] = [
-    { id: 'headers', label: 'Headers' },
-    { id: 'payload', label: 'Payload' },
-    { id: 'response', label: 'Response' },
-    { id: 'timing', label: 'Timing' },
-    { id: 'cookies', label: 'Cookies' },
-    { id: 'source', label: 'Source' },
-  ]
+    { id: "headers", label: "Headers" },
+    { id: "payload", label: "Payload" },
+    { id: "response", label: "Response" },
+    { id: "timing", label: "Timing" },
+    { id: "cookies", label: "Cookies" },
+    { id: "source", label: "Source" },
+  ];
 
   return (
     <div className="detail-panel">
@@ -66,7 +72,7 @@ export function DetailPanel({ entry, onClose }: DetailPanelProps) {
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className={`detail-tab ${activeTab === tab.id ? 'active' : ''}`}
+            className={`detail-tab ${activeTab === tab.id ? "active" : ""}`}
             onClick={() => setActiveTab(tab.id)}
           >
             {tab.label}
@@ -74,16 +80,18 @@ export function DetailPanel({ entry, onClose }: DetailPanelProps) {
         ))}
       </div>
 
-      <div className={`detail-content ${activeTab === 'source' ? 'detail-content-source' : ''}`}>
-        {activeTab === 'headers' && <HeadersTab entry={entry} />}
-        {activeTab === 'payload' && <PayloadTab entry={entry} />}
-        {activeTab === 'response' && <ResponseTab entry={entry} />}
-        {activeTab === 'timing' && <TimingTab entry={entry} />}
-        {activeTab === 'cookies' && <CookiesTab entry={entry} />}
-        {activeTab === 'source' && <SourceTab entry={entry} />}
+      <div
+        className={`detail-content ${activeTab === "source" ? "detail-content-source" : ""}`}
+      >
+        {activeTab === "headers" && <HeadersTab entry={entry} />}
+        {activeTab === "payload" && <PayloadTab entry={entry} />}
+        {activeTab === "response" && <ResponseTab entry={entry} />}
+        {activeTab === "timing" && <TimingTab entry={entry} />}
+        {activeTab === "cookies" && <CookiesTab entry={entry} />}
+        {activeTab === "source" && <SourceTab entry={entry} />}
       </div>
     </div>
-  )
+  );
 }
 
 function HeadersTab({ entry }: { entry: HarEntry }) {
@@ -185,12 +193,12 @@ function HeadersTab({ entry }: { entry: HarEntry }) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 function PayloadTab({ entry }: { entry: HarEntry }) {
-  const queryParams = entry.request.queryString
-  const postData = entry.request.postData
+  const queryParams = entry.request.queryString;
+  const postData = entry.request.postData;
 
   return (
     <div>
@@ -219,7 +227,7 @@ function PayloadTab({ entry }: { entry: HarEntry }) {
             <p
               style={{
                 fontSize: 11,
-                color: 'var(--color-text-tertiary)',
+                color: "var(--color-text-tertiary)",
                 marginBottom: 8,
               }}
             >
@@ -232,14 +240,14 @@ function PayloadTab({ entry }: { entry: HarEntry }) {
                 {postData.params.map((param, i) => (
                   <tr key={i}>
                     <td>{param.name}</td>
-                    <td>{param.value || param.fileName || ''}</td>
+                    <td>{param.value || param.fileName || ""}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           ) : postData.text ? (
             <div className="code-preview">
-              {postData.mimeType?.includes('json')
+              {postData.mimeType?.includes("json")
                 ? prettyPrintJson(postData.text)
                 : postData.text}
             </div>
@@ -253,18 +261,18 @@ function PayloadTab({ entry }: { entry: HarEntry }) {
         <div className="no-content">No payload data for this request</div>
       )}
     </div>
-  )
+  );
 }
 
 function ResponseTab({ entry }: { entry: HarEntry }) {
-  const content = entry.response.content
-  const mimeType = content.mimeType || ''
-  const text = content.text || ''
-  const language = detectLanguage(mimeType)
+  const content = entry.response.content;
+  const mimeType = content.mimeType || "";
+  const text = content.text || "";
+  const language = detectLanguage(mimeType);
 
   // Check if it's an image
-  if (mimeType.startsWith('image/')) {
-    if (content.encoding === 'base64' && text) {
+  if (mimeType.startsWith("image/")) {
+    if (content.encoding === "base64" && text) {
       return (
         <div className="detail-section">
           <div className="detail-section-title">Response Body</div>
@@ -274,7 +282,7 @@ function ResponseTab({ entry }: { entry: HarEntry }) {
             alt="Response"
           />
         </div>
-      )
+      );
     }
     return (
       <div className="detail-section">
@@ -283,7 +291,7 @@ function ResponseTab({ entry }: { entry: HarEntry }) {
           Image response ({formatBytes(content.size)})
         </div>
       </div>
-    )
+    );
   }
 
   if (!text) {
@@ -293,13 +301,13 @@ function ResponseTab({ entry }: { entry: HarEntry }) {
         <div className="no-content">
           {content.size > 0
             ? `Response body not captured (${formatBytes(content.size)})`
-            : 'No response body'}
+            : "No response body"}
         </div>
       </div>
-    )
+    );
   }
 
-  const displayText = language === 'json' ? prettyPrintJson(text) : text
+  const displayText = language === "json" ? prettyPrintJson(text) : text;
 
   return (
     <div className="detail-section">
@@ -308,12 +316,12 @@ function ResponseTab({ entry }: { entry: HarEntry }) {
       </div>
       <div className="code-preview">{displayText}</div>
     </div>
-  )
+  );
 }
 
 function TimingTab({ entry }: { entry: HarEntry }) {
-  const phases = computeTimingOffsets(entry)
-  const totalTime = entry.time
+  const phases = computeTimingOffsets(entry);
+  const totalTime = entry.time;
 
   return (
     <div>
@@ -336,9 +344,7 @@ function TimingTab({ entry }: { entry: HarEntry }) {
                   }}
                 />
               </div>
-              <span className="timing-value">
-                {formatTime(phase.duration)}
-              </span>
+              <span className="timing-value">{formatTime(phase.duration)}</span>
             </div>
           ))}
           <div className="timing-total">
@@ -354,31 +360,31 @@ function TimingTab({ entry }: { entry: HarEntry }) {
         <table className="detail-table">
           <tbody>
             {Object.entries(entry.timings).map(([key, value]) => {
-              if (key === 'comment') return null
+              if (key === "comment") return null;
               return (
                 <tr key={key}>
                   <td>{key}</td>
                   <td>
-                    {typeof value === 'number' && value >= 0
+                    {typeof value === "number" && value >= 0
                       ? formatTime(value)
-                      : '-'}
+                      : "-"}
                   </td>
                 </tr>
-              )
+              );
             })}
           </tbody>
         </table>
       </div>
     </div>
-  )
+  );
 }
 
 function CookiesTab({ entry }: { entry: HarEntry }) {
-  const requestCookies = entry.request.cookies
-  const responseCookies = entry.response.cookies
+  const requestCookies = entry.request.cookies;
+  const responseCookies = entry.response.cookies;
 
   if (requestCookies.length === 0 && responseCookies.length === 0) {
-    return <div className="no-content">No cookies for this request</div>
+    return <div className="no-content">No cookies for this request</div>;
   }
 
   return (
@@ -414,26 +420,26 @@ function CookiesTab({ entry }: { entry: HarEntry }) {
                   <td>
                     {cookie.value}
                     {cookie.domain && (
-                      <span style={{ color: 'var(--color-text-tertiary)' }}>
-                        {' '}
+                      <span style={{ color: "var(--color-text-tertiary)" }}>
+                        {" "}
                         (Domain: {cookie.domain})
                       </span>
                     )}
                     {cookie.path && (
-                      <span style={{ color: 'var(--color-text-tertiary)' }}>
-                        {' '}
+                      <span style={{ color: "var(--color-text-tertiary)" }}>
+                        {" "}
                         (Path: {cookie.path})
                       </span>
                     )}
                     {cookie.httpOnly && (
-                      <span style={{ color: 'var(--color-text-tertiary)' }}>
-                        {' '}
+                      <span style={{ color: "var(--color-text-tertiary)" }}>
+                        {" "}
                         HttpOnly
                       </span>
                     )}
                     {cookie.secure && (
-                      <span style={{ color: 'var(--color-text-tertiary)' }}>
-                        {' '}
+                      <span style={{ color: "var(--color-text-tertiary)" }}>
+                        {" "}
                         Secure
                       </span>
                     )}
@@ -445,178 +451,194 @@ function CookiesTab({ entry }: { entry: HarEntry }) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 function SourceTab({ entry }: { entry: HarEntry }) {
   // Strip internal computed fields to show clean HAR JSON
   const source = useMemo(() => {
-    const { _index, _url, ...clean } = entry
-    return JSON.stringify(clean, null, 2)
-  }, [entry])
+    const { _index, _url, ...clean } = entry;
+    return JSON.stringify(clean, null, 2);
+  }, [entry]);
 
-  const [searchQuery, setSearchQuery] = useState('')
-  const [matchIndex, setMatchIndex] = useState(0)
-  const [matchCount, setMatchCount] = useState(0)
-  const contentRef = useRef<HTMLPreElement>(null)
-  const searchInputRef = useRef<HTMLInputElement>(null)
-  const [searchVisible, setSearchVisible] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [matchIndex, setMatchIndex] = useState(0);
+  const [matchCount, setMatchCount] = useState(0);
+  const contentRef = useRef<HTMLPreElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [searchVisible, setSearchVisible] = useState(false);
 
   const findMatches = useCallback(
     (query: string) => {
-      if (!query) return []
-      const matches: number[] = []
-      const lower = source.toLowerCase()
-      const q = query.toLowerCase()
-      let pos = 0
+      if (!query) return [];
+      const matches: number[] = [];
+      const lower = source.toLowerCase();
+      const q = query.toLowerCase();
+      let pos = 0;
       while (pos < lower.length) {
-        const idx = lower.indexOf(q, pos)
-        if (idx === -1) break
-        matches.push(idx)
-        pos = idx + 1
+        const idx = lower.indexOf(q, pos);
+        if (idx === -1) break;
+        matches.push(idx);
+        pos = idx + 1;
       }
-      return matches
+      return matches;
     },
-    [source]
-  )
+    [source],
+  );
 
   // Build highlighted content with matches wrapped in <mark> elements
   const highlightedContent = useMemo(() => {
-    if (!searchQuery) return source
-    const matches = findMatches(searchQuery)
-    if (matches.length === 0) return source
+    if (!searchQuery) return source;
+    const matches = findMatches(searchQuery);
+    if (matches.length === 0) return source;
 
-    const parts: string[] = []
-    let lastEnd = 0
+    const parts: string[] = [];
+    let lastEnd = 0;
     matches.forEach((matchPos, i) => {
       // Escape HTML in the text between matches
-      parts.push(escapeHtml(source.substring(lastEnd, matchPos)))
-      const matchText = source.substring(matchPos, matchPos + searchQuery.length)
-      const cls = i === matchIndex ? 'source-match active' : 'source-match'
-      parts.push(`<mark class="${cls}">${escapeHtml(matchText)}</mark>`)
-      lastEnd = matchPos + searchQuery.length
-    })
-    parts.push(escapeHtml(source.substring(lastEnd)))
-    return parts.join('')
-  }, [source, searchQuery, matchIndex, findMatches])
+      parts.push(escapeHtml(source.substring(lastEnd, matchPos)));
+      const matchText = source.substring(
+        matchPos,
+        matchPos + searchQuery.length,
+      );
+      const cls = i === matchIndex ? "source-match active" : "source-match";
+      parts.push(`<mark class="${cls}">${escapeHtml(matchText)}</mark>`);
+      lastEnd = matchPos + searchQuery.length;
+    });
+    parts.push(escapeHtml(source.substring(lastEnd)));
+    return parts.join("");
+  }, [source, searchQuery, matchIndex, findMatches]);
 
   const scrollToCurrentMatch = useCallback(() => {
-    if (!contentRef.current) return
-    const activeMatch = contentRef.current.querySelector('mark.active')
+    if (!contentRef.current) return;
+    const activeMatch = contentRef.current.querySelector("mark.active");
     if (activeMatch) {
-      activeMatch.scrollIntoView({ block: 'center' })
+      activeMatch.scrollIntoView({ block: "center" });
     }
-  }, [])
+  }, []);
 
   // Scroll to active match when it changes
   useEffect(() => {
     if (searchQuery && matchCount > 0) {
       // Wait for DOM to update with new highlights
-      requestAnimationFrame(scrollToCurrentMatch)
+      requestAnimationFrame(scrollToCurrentMatch);
     }
-  }, [matchIndex, highlightedContent, scrollToCurrentMatch, searchQuery, matchCount])
+  }, [
+    matchIndex,
+    highlightedContent,
+    scrollToCurrentMatch,
+    searchQuery,
+    matchCount,
+  ]);
 
   const handleSearch = useCallback(
     (query: string) => {
-      setSearchQuery(query)
-      const matches = findMatches(query)
-      setMatchCount(matches.length)
-      setMatchIndex(0)
+      setSearchQuery(query);
+      const matches = findMatches(query);
+      setMatchCount(matches.length);
+      setMatchIndex(0);
     },
-    [findMatches]
-  )
+    [findMatches],
+  );
 
   const handleNextMatch = useCallback(() => {
-    if (matchCount === 0) return
-    setMatchIndex((prev) => (prev + 1) % matchCount)
-  }, [matchCount])
+    if (matchCount === 0) return;
+    setMatchIndex((prev) => (prev + 1) % matchCount);
+  }, [matchCount]);
 
   const handlePrevMatch = useCallback(() => {
-    if (matchCount === 0) return
-    setMatchIndex((prev) => (prev - 1 + matchCount) % matchCount)
-  }, [matchCount])
+    if (matchCount === 0) return;
+    setMatchIndex((prev) => (prev - 1 + matchCount) % matchCount);
+  }, [matchCount]);
 
   const handleSearchKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        e.preventDefault()
+      if (e.key === "Enter") {
+        e.preventDefault();
         if (e.shiftKey) {
-          handlePrevMatch()
+          handlePrevMatch();
         } else {
-          handleNextMatch()
+          handleNextMatch();
         }
       }
-      if ((e.metaKey || e.ctrlKey) && e.key === 'g') {
-        e.preventDefault()
+      if ((e.metaKey || e.ctrlKey) && e.key === "g") {
+        e.preventDefault();
         if (e.shiftKey) {
-          handlePrevMatch()
+          handlePrevMatch();
         } else {
-          handleNextMatch()
+          handleNextMatch();
         }
       }
-      if (e.key === 'Escape') {
-        setSearchVisible(false)
+      if (e.key === "Escape") {
+        setSearchVisible(false);
       }
     },
-    [handleNextMatch, handlePrevMatch]
-  )
+    [handleNextMatch, handlePrevMatch],
+  );
 
   // Handle Cmd+F / Cmd+G on the source content
   const handleContentKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
-        e.preventDefault()
-        setSearchVisible(true)
+      if ((e.metaKey || e.ctrlKey) && e.key === "f") {
+        e.preventDefault();
+        setSearchVisible(true);
         requestAnimationFrame(() => {
-          searchInputRef.current?.focus()
-          searchInputRef.current?.select()
-        })
+          searchInputRef.current?.focus();
+          searchInputRef.current?.select();
+        });
       }
-      if ((e.metaKey || e.ctrlKey) && e.key === 'g' && searchVisible) {
-        e.preventDefault()
+      if ((e.metaKey || e.ctrlKey) && e.key === "g" && searchVisible) {
+        e.preventDefault();
         if (e.shiftKey) {
-          handlePrevMatch()
+          handlePrevMatch();
         } else {
-          handleNextMatch()
+          handleNextMatch();
         }
       }
     },
-    [searchVisible, handleNextMatch, handlePrevMatch]
-  )
+    [searchVisible, handleNextMatch, handlePrevMatch],
+  );
 
   // Focus search input when it becomes visible
   useEffect(() => {
     if (searchVisible) {
       requestAnimationFrame(() => {
-        searchInputRef.current?.focus()
-      })
+        searchInputRef.current?.focus();
+      });
     }
-  }, [searchVisible])
+  }, [searchVisible]);
 
   // Auto-focus content when Source tab mounts so Cmd+F works immediately
   useEffect(() => {
     requestAnimationFrame(() => {
-      contentRef.current?.focus()
-    })
-  }, [])
+      contentRef.current?.focus();
+    });
+  }, []);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(source)
-  }
+    navigator.clipboard.writeText(source);
+  };
 
   return (
     <div className="source-tab">
-      <div className="detail-section-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div
+        className="detail-section-title"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <span>HAR Entry Source</span>
-        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+        <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
           <button
             className="source-copy-btn"
             onClick={() => {
-              setSearchVisible(!searchVisible)
+              setSearchVisible(!searchVisible);
               if (!searchVisible) {
                 requestAnimationFrame(() => {
-                  searchInputRef.current?.focus()
-                })
+                  searchInputRef.current?.focus();
+                });
               }
             }}
             title="Search (Cmd+F)"
@@ -643,7 +665,7 @@ function SourceTab({ entry }: { entry: HarEntry }) {
             <span className="source-search-count">
               {matchCount > 0
                 ? `${matchIndex + 1} of ${matchCount}`
-                : 'No results'}
+                : "No results"}
             </span>
           )}
           <button
@@ -679,13 +701,13 @@ function SourceTab({ entry }: { entry: HarEntry }) {
         dangerouslySetInnerHTML={{ __html: highlightedContent }}
       />
     </div>
-  )
+  );
 }
 
 function escapeHtml(text: string): string {
   return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }

@@ -1,12 +1,25 @@
-import { useState, useRef, useCallback, useEffect, forwardRef, useImperativeHandle } from 'react'
-import type { FilterSuggestionData, Suggestion } from '../utils/filterSuggestions'
-import { getFilterSuggestions, applySuggestion } from '../utils/filterSuggestions'
+import {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
+import type {
+  FilterSuggestionData,
+  Suggestion,
+} from "../utils/filterSuggestions";
+import {
+  getFilterSuggestions,
+  applySuggestion,
+} from "../utils/filterSuggestions";
 
 interface FilterInputProps {
-  value: string
-  onChange: (value: string) => void
-  suggestionData: FilterSuggestionData
-  placeholder?: string
+  value: string;
+  onChange: (value: string) => void;
+  suggestionData: FilterSuggestionData;
+  placeholder?: string;
 }
 
 /**
@@ -15,110 +28,110 @@ interface FilterInputProps {
  */
 export const FilterInput = forwardRef<HTMLInputElement, FilterInputProps>(
   function FilterInput({ value, onChange, suggestionData, placeholder }, ref) {
-    const inputRef = useRef<HTMLInputElement>(null)
-    const dropdownRef = useRef<HTMLDivElement>(null)
-    const [suggestions, setSuggestions] = useState<Suggestion[]>([])
-    const [selectedIndex, setSelectedIndex] = useState(0)
-    const [isOpen, setIsOpen] = useState(false)
+    const inputRef = useRef<HTMLInputElement>(null);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [isOpen, setIsOpen] = useState(false);
 
     // Expose the input element to parent via ref
-    useImperativeHandle(ref, () => inputRef.current as HTMLInputElement)
+    useImperativeHandle(ref, () => inputRef.current as HTMLInputElement);
 
     const updateSuggestions = useCallback(() => {
-      const input = inputRef.current
-      if (!input) return
-      const cursor = input.selectionStart ?? value.length
-      const newSuggestions = getFilterSuggestions(value, cursor, suggestionData)
-      setSuggestions(newSuggestions)
-      setSelectedIndex(0)
-      setIsOpen(newSuggestions.length > 0)
-    }, [value, suggestionData])
+      const input = inputRef.current;
+      if (!input) return;
+      const cursor = input.selectionStart ?? value.length;
+      const newSuggestions = getFilterSuggestions(
+        value,
+        cursor,
+        suggestionData,
+      );
+      setSuggestions(newSuggestions);
+      setSelectedIndex(0);
+      setIsOpen(newSuggestions.length > 0);
+    }, [value, suggestionData]);
 
     // Update suggestions when the value or suggestion data changes
     useEffect(() => {
       // Only update if the input is focused
       if (document.activeElement === inputRef.current) {
-        updateSuggestions()
+        updateSuggestions();
       }
-    }, [value, suggestionData, updateSuggestions])
+    }, [value, suggestionData, updateSuggestions]);
 
     const acceptSuggestion = useCallback(
       (suggestion: Suggestion) => {
-        const { newInput, newCursor } = applySuggestion(value, suggestion)
-        onChange(newInput)
-        setIsOpen(false)
+        const { newInput, newCursor } = applySuggestion(value, suggestion);
+        onChange(newInput);
+        setIsOpen(false);
         // Restore cursor position after React re-renders
         requestAnimationFrame(() => {
-          const input = inputRef.current
+          const input = inputRef.current;
           if (input) {
-            input.setSelectionRange(newCursor, newCursor)
-            input.focus()
+            input.setSelectionRange(newCursor, newCursor);
+            input.focus();
           }
-        })
+        });
       },
-      [value, onChange]
-    )
+      [value, onChange],
+    );
 
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent) => {
-        if (!isOpen || suggestions.length === 0) return
+        if (!isOpen || suggestions.length === 0) return;
 
         switch (e.key) {
-          case 'ArrowDown':
-            e.preventDefault()
-            setSelectedIndex((i) =>
-              i < suggestions.length - 1 ? i + 1 : 0
-            )
-            break
-          case 'ArrowUp':
-            e.preventDefault()
-            setSelectedIndex((i) =>
-              i > 0 ? i - 1 : suggestions.length - 1
-            )
-            break
-          case 'Enter':
-          case 'Tab':
-            e.preventDefault()
-            acceptSuggestion(suggestions[selectedIndex])
-            break
-          case 'Escape':
-            e.preventDefault()
-            e.nativeEvent.stopImmediatePropagation() // Prevent global handler from also firing
-            setIsOpen(false)
-            break
+          case "ArrowDown":
+            e.preventDefault();
+            setSelectedIndex((i) => (i < suggestions.length - 1 ? i + 1 : 0));
+            break;
+          case "ArrowUp":
+            e.preventDefault();
+            setSelectedIndex((i) => (i > 0 ? i - 1 : suggestions.length - 1));
+            break;
+          case "Enter":
+          case "Tab":
+            e.preventDefault();
+            acceptSuggestion(suggestions[selectedIndex]);
+            break;
+          case "Escape":
+            e.preventDefault();
+            e.nativeEvent.stopImmediatePropagation(); // Prevent global handler from also firing
+            setIsOpen(false);
+            break;
         }
       },
-      [isOpen, suggestions, selectedIndex, acceptSuggestion]
-    )
+      [isOpen, suggestions, selectedIndex, acceptSuggestion],
+    );
 
     const handleFocus = useCallback(() => {
-      updateSuggestions()
-    }, [updateSuggestions])
+      updateSuggestions();
+    }, [updateSuggestions]);
 
     const handleBlur = useCallback((e: React.FocusEvent) => {
       // Delay close so click on dropdown item can fire first
-      const related = e.relatedTarget as HTMLElement | null
-      if (related && dropdownRef.current?.contains(related)) return
-      setTimeout(() => setIsOpen(false), 150)
-    }, [])
+      const related = e.relatedTarget as HTMLElement | null;
+      if (related && dropdownRef.current?.contains(related)) return;
+      setTimeout(() => setIsOpen(false), 150);
+    }, []);
 
     const handleChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        onChange(e.target.value)
+        onChange(e.target.value);
       },
-      [onChange]
-    )
+      [onChange],
+    );
 
     // Scroll the selected suggestion into view
     useEffect(() => {
-      if (!isOpen || !dropdownRef.current) return
+      if (!isOpen || !dropdownRef.current) return;
       const selected = dropdownRef.current.querySelector(
-        '.filter-suggestion-item.selected'
-      )
+        ".filter-suggestion-item.selected",
+      );
       if (selected) {
-        selected.scrollIntoView({ block: 'nearest' })
+        selected.scrollIntoView({ block: "nearest" });
       }
-    }, [selectedIndex, isOpen])
+    }, [selectedIndex, isOpen]);
 
     return (
       <>
@@ -138,10 +151,10 @@ export const FilterInput = forwardRef<HTMLInputElement, FilterInputProps>(
             {suggestions.map((suggestion, index) => (
               <div
                 key={`${suggestion.label}-${index}`}
-                className={`filter-suggestion-item ${index === selectedIndex ? 'selected' : ''}`}
+                className={`filter-suggestion-item ${index === selectedIndex ? "selected" : ""}`}
                 onMouseDown={(e) => {
-                  e.preventDefault() // Prevent blur
-                  acceptSuggestion(suggestion)
+                  e.preventDefault(); // Prevent blur
+                  acceptSuggestion(suggestion);
                 }}
                 onMouseEnter={() => setSelectedIndex(index)}
               >
@@ -158,6 +171,6 @@ export const FilterInput = forwardRef<HTMLInputElement, FilterInputProps>(
           </div>
         )}
       </>
-    )
-  }
-)
+    );
+  },
+);

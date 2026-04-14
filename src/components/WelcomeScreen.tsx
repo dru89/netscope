@@ -1,6 +1,6 @@
 interface WelcomeScreenProps {
-  onOpenFile: () => void
-  error: string | null
+  onOpenFile: () => void;
+  error: string | null;
 }
 
 export function WelcomeScreen({ onOpenFile, error }: WelcomeScreenProps) {
@@ -95,5 +95,5 @@ export function WelcomeScreen({ onOpenFile, error }: WelcomeScreenProps) {
       </div>
       {error && <div className="welcome-error">{error}</div>}
     </div>
-  )
+  );
 }
