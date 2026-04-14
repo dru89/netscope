@@ -81,7 +81,8 @@
           "ext": "har",
           "name": "HAR File",
           "description": "HTTP Archive File",
-          "role": "Viewer"
+          "role": "Viewer",
+          "icon": "build/har-icon"
         }
       ]
     },
@@ -94,7 +95,8 @@
         {
           "ext": "har",
           "name": "HAR File",
-          "description": "HTTP Archive File"
+          "description": "HTTP Archive File",
+          "icon": "build/har-icon"
         }
       ]
     },
@@ -125,6 +127,12 @@
     "files": [
       "dist/**/*",
       "dist-electron/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "build/har-icon.icns",
+        "to": "har-icon.icns"
+      }
     ],
     "directories": {
       "output": "release"
