@@ -19,7 +19,9 @@
     "site:dev": "npm run dev --prefix site",
     "site:build": "npm run build --prefix site",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "electron-updater": "^6.8.3",
@@ -34,6 +36,8 @@
     "dotenv": "^17.3.1",
     "electron": "^28.1.0",
     "electron-builder": "^24.9.1",
+    "prettier": "^3.8.2",
+    "prettier-plugin-astro": "^0.14.1",
     "typescript": "^5.3.3",
     "vite": "^5.0.8",
     "vite-plugin-electron": "^0.28.0",

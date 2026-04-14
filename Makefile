@@ -1,4 +1,4 @@
-.PHONY: dev build package test test-watch lint clean icons release site-dev site-build
+.PHONY: dev build package test test-watch lint format clean icons release site-dev site-build
 
 # Start the Vite dev server with Electron hot reload.
 dev:
@@ -23,6 +23,10 @@ test-watch:
 # Type-check only (no emit).
 lint:
 	npx tsc --noEmit
+
+# Format all files with Prettier.
+format:
+	npm run format
 
 # Remove all build artifacts.
 clean:
