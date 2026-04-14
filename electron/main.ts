@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, nativeTheme, Menu } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, nativeTheme, Menu, shell } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import path from 'path'
 import fs from 'fs'
@@ -6,6 +6,7 @@ import fs from 'fs'
 const windows = new Set<BrowserWindow>()
 const windowFilePaths = new Map<BrowserWindow, string>()
 let pendingFile: string | null = null
+let pendingUpdateVersion: string | null = null
 
 const isMac = process.platform === 'darwin'
 
@@ -169,6 +170,63 @@ nativeTheme.on('updated', () => {
   })
 })
 
+// Track when an update has been downloaded
+autoUpdater.on('update-downloaded', (info) => {
+  pendingUpdateVersion = info.version
+})
+
+// Update the macOS About panel options (called on launch and when an update is downloaded)
+function updateAboutPanel() {
+  const currentVersion = app.getVersion()
+  let credits = ''
+  if (pendingUpdateVersion) {
+    credits = `Version ${pendingUpdateVersion} is ready — restart to install.`
+  }
+  app.setAboutPanelOptions({
+    applicationName: 'Netscope',
+    applicationVersion: currentVersion,
+    version: '', // Hide the secondary version string
+    copyright: `Copyright © ${new Date().getFullYear()} Drew Hays`,
+    credits,
+  })
+}
+
+// Custom About dialog that shows update status
+async function showAbout() {
+  if (isMac) {
+    updateAboutPanel()
+    app.showAboutPanel()
+    return
+  }
+
+  const currentVersion = app.getVersion()
+  const lines = [
+    `Version ${currentVersion}`,
+    '',
+    `Copyright © ${new Date().getFullYear()} Drew Hays`,
+  ]
+
+  if (pendingUpdateVersion) {
+    lines.push('', `Version ${pendingUpdateVersion} is ready — restart to install.`)
+  }
+
+  const buttons = pendingUpdateVersion ? ['Restart Now', 'OK'] : ['OK']
+  const iconPath = path.join(__dirname, '..', 'build', 'icon.png')
+  const focusedWindow = BrowserWindow.getFocusedWindow()
+  const result = await dialog.showMessageBox(focusedWindow ?? ({} as BrowserWindow), {
+    title: 'About Netscope',
+    message: 'Netscope',
+    detail: lines.join('\n'),
+    buttons,
+    icon: iconPath,
+  })
+
+  // "Restart Now" is index 0 when an update is pending
+  if (pendingUpdateVersion && result.response === 0) {
+    autoUpdater.quitAndInstall()
+  }
+}
+
 // Build application menu
 function buildMenu() {
   const template: Electron.MenuItemConstructorOptions[] = [
@@ -178,7 +236,7 @@ function buildMenu() {
           {
             label: app.name,
             submenu: [
-              { role: 'about' as const },
+              { label: 'About Netscope', click: showAbout },
               { type: 'separator' as const },
               { role: 'services' as const },
               { type: 'separator' as const },
@@ -259,6 +317,25 @@ function buildMenu() {
           : [{ role: 'close' as const }]),
       ],
     },
+    {
+      role: 'help',
+      submenu: [
+        {
+          label: 'Netscope Website',
+          click: () => { shell.openExternal('https://netscopeapp.com') },
+        },
+        {
+          label: 'Report an Issue',
+          click: () => { shell.openExternal('https://github.com/Dru89/netscope/issues') },
+        },
+        ...(!isMac
+          ? [
+              { type: 'separator' as const },
+              { label: 'About Netscope', click: showAbout },
+            ]
+          : []),
+      ],
+    },
   ]
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
@@ -292,11 +369,11 @@ app.whenReady().then(() => {
   createWindow(pendingFile || undefined)
   pendingFile = null
 
-  // Check for updates (silently — notifies user only when an update is ready)
+  // Check for updates silently — download in the background, install on quit
   autoUpdater.autoDownload = true
   autoUpdater.autoInstallOnAppQuit = true
   autoUpdater.logger = null // Suppress verbose logging
-  autoUpdater.checkForUpdatesAndNotify()
+  autoUpdater.checkForUpdates()
 })
 
 app.on('window-all-closed', () => {
