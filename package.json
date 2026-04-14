@@ -43,6 +43,7 @@
   "build": {
     "appId": "com.netscope.app",
     "productName": "Netscope",
+    "afterPack": "scripts/afterPack.js",
     "afterSign": "scripts/notarize.js",
     "publish": [
       {
@@ -95,8 +96,7 @@
         {
           "ext": "har",
           "name": "HAR File",
-          "description": "HTTP Archive File",
-          "icon": "build/har-icon"
+          "description": "HTTP Archive File"
         }
       ]
     },

@@ -40,7 +40,7 @@ exports.default = async function afterPack(context) {
     // Icon file
     `-c "Add :UTExportedTypeDeclarations:0:UTTypeIconFile string har-icon.icns"`,
 
-    // Conforms to public.data only — not public.json, because macOS
+    // Conforms to public.data only — no public.json, because macOS
     // will show a JSON text preview instead of our icon if it thinks
     // the file is JSON.
     `-c "Add :UTExportedTypeDeclarations:0:UTTypeConformsTo array"`,
