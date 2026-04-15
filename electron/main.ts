@@ -27,16 +27,27 @@ function addRecentDocument(filePath: string) {
     recentDocuments.length = MAX_RECENT_DOCUMENTS;
   }
 }
+
+function removeRecentDocument(filePath: string) {
+  const index = recentDocuments.indexOf(filePath);
+  if (index !== -1) {
+    recentDocuments.splice(index, 1);
+  }
+}
 let pendingFile: string | null = null;
 let pendingUpdateVersion: string | null = null;
 
 const isMac = process.platform === "darwin";
 const CASCADE_OFFSET = 28;
+let lastCreatedWindow: BrowserWindow | null = null;
 
 function getCascadePosition(): { x: number; y: number } | undefined {
-  const focused = BrowserWindow.getFocusedWindow();
-  if (!focused) return undefined;
-  const [x, y] = focused.getPosition();
+  // Cascade from the most recently created window, not the focused one,
+  // so that new windows always stack below the previous one regardless
+  // of which window the user has focused.
+  const reference = lastCreatedWindow ?? BrowserWindow.getFocusedWindow();
+  if (!reference || reference.isDestroyed()) return undefined;
+  const [x, y] = reference.getPosition();
   return { x: x + CASCADE_OFFSET, y: y + CASCADE_OFFSET };
 }
 
@@ -64,6 +75,7 @@ function createWindow(fileToOpen?: string): BrowserWindow {
   });
 
   windows.add(win);
+  lastCreatedWindow = win;
 
   win.once("ready-to-show", () => {
     win.show();
@@ -82,6 +94,9 @@ function createWindow(fileToOpen?: string): BrowserWindow {
   win.on("closed", () => {
     windows.delete(win);
     windowFilePaths.delete(win);
+    if (lastCreatedWindow === win) {
+      lastCreatedWindow = null;
+    }
   });
 
   return win;
@@ -147,11 +162,8 @@ function openFileInNewWindow(filePath: string) {
     } else {
       dialog.showMessageBox(dialogOptions);
     }
-    const index = recentDocuments.indexOf(resolved);
-    if (index !== -1) {
-      recentDocuments.splice(index, 1);
-      buildMenu();
-    }
+    removeRecentDocument(resolved);
+    buildMenu();
     return;
   }
 
@@ -162,16 +174,10 @@ function openFileInNewWindow(filePath: string) {
     return;
   }
 
-  // If there's a window with no file loaded (welcome screen), reuse it
-  let emptyWindow: BrowserWindow | null = null;
-  windows.forEach((win) => {
-    if (!windowFilePaths.has(win)) {
-      emptyWindow = win;
-    }
-  });
-  if (emptyWindow) {
-    (emptyWindow as BrowserWindow).focus();
-    sendFileToWindow(emptyWindow, filePath);
+  // If the focused window is a welcome screen (no file loaded), reuse it
+  const focused = BrowserWindow.getFocusedWindow();
+  if (focused && !windowFilePaths.has(focused)) {
+    sendFileToWindow(focused, filePath);
     return;
   }
 
@@ -373,12 +379,16 @@ function buildMenu() {
               ],
             });
             if (!result.canceled && result.filePaths.length > 0) {
-              if (focusedWindow && !windowFilePaths.has(focusedWindow)) {
+              const filePath = result.filePaths[0];
+              const existing = findWindowForFile(filePath);
+              if (existing) {
+                existing.focus();
+              } else if (focusedWindow && !windowFilePaths.has(focusedWindow)) {
                 // Window is on the welcome screen — load in place
-                sendFileToWindow(focusedWindow, result.filePaths[0]);
+                sendFileToWindow(focusedWindow, filePath);
               } else {
                 // Window already has a file, or no focused window — open in new window
-                openFileInNewWindow(result.filePaths[0]);
+                openFileInNewWindow(filePath);
               }
             }
           },
@@ -435,17 +445,7 @@ function buildMenu() {
       ],
     },
     {
-      label: "Window",
-      submenu: [
-        { role: "minimize" },
-        ...(isMac
-          ? [
-              { role: "zoom" as const },
-              { type: "separator" as const },
-              { role: "front" as const },
-            ]
-          : [{ role: "close" as const }]),
-      ],
+      role: "windowMenu",
     },
     {
       role: "help",
