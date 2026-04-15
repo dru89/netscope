@@ -1,4 +1,4 @@
-.PHONY: dev build package test test-watch lint format clean icons release site-dev site-build
+.PHONY: dev build package test test-watch test-e2e lint format clean icons release site-dev site-build
 
 # Start the Vite dev server with Electron hot reload.
 dev:
@@ -19,6 +19,10 @@ test:
 # Run tests in watch mode.
 test-watch:
 	npm run test:watch
+
+# Run Playwright E2E tests (requires a build first).
+test-e2e: build
+	npx playwright test
 
 # Type-check only (no emit).
 lint:

@@ -6,3 +6,4 @@ release/
 *.log
 release.zip
 .env
+test-results/

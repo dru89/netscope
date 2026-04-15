@@ -35,4 +35,7 @@ export default defineConfig({
     ]),
     electronRenderer(),
   ],
+  test: {
+    exclude: ["test/e2e/**", "node_modules/**", "site/**"],
+  },
 });

@@ -64,6 +64,7 @@ make build            # tsc && vite build (bundle only, no packaging)
 make package          # Full production build: tsc && vite build && electron-builder
 make test             # Run tests with Vitest (single run)
 make test-watch       # Run tests in watch mode
+make test-e2e         # Build app, then run Playwright E2E tests
 make lint             # Type-check only (tsc --noEmit)
 make clean            # Remove dist/, dist-electron/, release/
 make icons            # Regenerate platform icons from images/netscope.png
@@ -72,7 +73,7 @@ make site-dev         # Astro dev server for the marketing site
 make site-build       # Build the marketing site
 ```
 
-All targets are also available as npm scripts (`npm run dev`, `npm test`, etc.) except `make lint`, `make clean`, `make icons`, and `make release` which are Makefile-only.
+All targets are also available as npm scripts (`npm run dev`, `npm test`, etc.) except `make lint`, `make clean`, `make icons`, `make test-e2e`, and `make release` which are Makefile-only.
 
 ## Testing
 
@@ -85,6 +86,23 @@ src/utils/copyFormatters.test.ts     # Copy-as-cURL/fetch/PowerShell formatter t
 ```
 
 Run `npm test` before committing to make sure nothing is broken. When adding new utility functions, write tests. Component tests are not set up yet (no jsdom/happy-dom environment or React Testing Library).
+
+### E2E Tests
+
+End-to-end tests use **Playwright** with Electron support (`@playwright/test`). They launch the real Electron app against bundled output and test the full stack (main process, preload, renderer).
+
+```
+test/e2e/app-launch.test.ts   # Welcome screen, preload API, platform detection (4 tests)
+test/e2e/file-open.test.ts    # HAR file loading via IPC, table/toolbar/summary rendering (5 tests)
+test/e2e/filter.test.ts       # Filter input, domain/negation/clear, toolbar count (5 tests)
+test/e2e/interaction.test.ts  # Row click, column sort, keyboard navigation (3 tests)
+test/e2e/helpers.ts           # Test fixtures, Electron launch helper, IPC file opener
+test/fixtures/*.har           # HAR captures (Git LFS): example.com, github.com, google.com
+```
+
+Run `make test-e2e` (which builds first) or `npx playwright test` if already built. E2E tests run on all three platforms in CI via the `e2e` job in `.github/workflows/ci.yml`. On Linux, tests run under `xvfb-run` for a virtual display.
+
+**Limitation:** Native context menus (right-click) can't be tested in Playwright because OS-level menus block the Electron event loop. The context menu is tested indirectly through the copy formatter unit tests and manual QA.
 
 ### Writing Tests
 
