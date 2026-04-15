@@ -106,6 +106,7 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": false,
       "deleteAppDataOnUninstall": true
     },
     "linux": {
