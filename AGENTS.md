@@ -15,7 +15,7 @@ Netscope is an Electron app with three process layers:
 
 1. **Main process** (`electron/main.ts`) -- Node.js runtime handling window management, file I/O, native menus, file associations (macOS Finder, command-line args on all platforms), theme detection, auto-updates (`electron-updater`), and single-instance enforcement (`requestSingleInstanceLock`). Manages multiple windows via a `Set<BrowserWindow>` and tracks loaded files in a `Map<BrowserWindow, string>`. Platform-specific behavior (title bar style, app menu, quit-on-close) is guarded by an `isMac` constant. On Windows/Linux, file opens from the OS go through the `second-instance` event; on macOS they use the `open-file` event.
 
-2. **Preload script** (`electron/preload.ts`) -- Bridge layer using `contextBridge.exposeInMainWorld` to expose a typed `window.electronAPI` with 7 methods. This is the only communication channel between main and renderer.
+2. **Preload script** (`electron/preload.ts`) -- Bridge layer using `contextBridge.exposeInMainWorld` to expose a typed `window.electronAPI` with 9 methods. This is the only communication channel between main and renderer.
 
 3. **Renderer** (`src/`) -- A React 18 SPA bundled by Vite. No direct Node.js access. All file I/O goes through IPC. State is managed entirely with React hooks in `App.tsx` (no external state library). Falls back to browser `FileReader` when `window.electronAPI` is unavailable (dev mode).
 
@@ -30,7 +30,7 @@ src/
   hooks/            React hooks (currently empty, reserved for future use)
   styles/           Plain CSS (global.css for theme variables, app.css for component styles)
   types/            TypeScript types (HAR spec types, electron API declarations)
-  utils/            HAR parsing, formatting, content type classification, filter parsing, filter suggestions
+  utils/            HAR parsing, formatting, content type classification, filter parsing, filter suggestions, copy formatters
   App.tsx           Root component -- all application state lives here
   main.tsx          ReactDOM entry point
 build/              Electron-builder resources (icon.icns)
@@ -80,7 +80,8 @@ Tests use **Vitest** (configured automatically through the Vite config). Test fi
 
 ```
 src/utils/filterParser.test.ts       # Filter parser and matcher unit tests (54 tests)
-src/utils/filterSuggestions.test.ts  # Autocomplete suggestion logic tests (24 tests)
+src/utils/filterSuggestions.test.ts  # Autocomplete suggestion logic tests (32 tests)
+src/utils/copyFormatters.test.ts     # Copy-as-cURL/fetch/PowerShell formatter tests (21 tests)
 ```
 
 Run `npm test` before committing to make sure nothing is broken. When adding new utility functions, write tests. Component tests are not set up yet (no jsdom/happy-dom environment or React Testing Library).
@@ -119,6 +120,28 @@ The app supports keyboard navigation, implemented across `RequestTable.tsx` (tab
 **Focus model:** The table container (`div.request-table-container`) has `tabIndex={0}` and handles its own `onKeyDown`. When focus moves elsewhere (detail panel, filter input), table shortcuts stop firing. This is intentional -- arrow keys in the detail panel scroll content, not the entry list. Escape returns focus to the table.
 
 **Gotcha with Escape:** When Escape is pressed inside an input within the detail panel (e.g., the Source tab search input), the global handler defers to the detail panel's own Escape handling. Only a second Escape (or Escape from a non-input element) closes the panel.
+
+## Context Menu
+
+Right-clicking a request row shows a native OS context menu (built in the main process via `Menu.buildFromTemplate`). The renderer sends entry data and filtered entries to main via the `show-request-context-menu` IPC channel; menu actions either write to the clipboard directly in main or send a sort action back to the renderer via `context-menu-sort`.
+
+### Menu items
+
+| Item                           | Action                                                                       |
+| ------------------------------ | ---------------------------------------------------------------------------- |
+| Open in Browser                | Opens the request URL in the default browser via `shell.openExternal`        |
+| Copy > Copy URL                | Copies the request URL                                                       |
+| Copy > Copy as cURL            | Copies a `curl` command with method, headers, and body                       |
+| Copy > Copy as fetch           | Copies a browser `fetch()` call (omits browser-managed headers)              |
+| Copy > Copy as fetch (Node.js) | Copies a `fetch()` call with all headers (includes Cookie, User-Agent, etc.) |
+| Copy > Copy as PowerShell      | Copies an `Invoke-WebRequest` command                                        |
+| Copy > Copy Response           | Copies the raw response body                                                 |
+| Copy > Copy All Listed ...     | Bulk variants of the above for all currently filtered entries                |
+| Sort By > ...                  | Changes the table sort field/direction (same as clicking column headers)     |
+
+### Copy formatters
+
+The formatter functions (`toCurl`, `toFetch`, `toFetchNode`, `toPowerShell`, `getResponseBody`) live in `src/utils/copyFormatters.ts` as pure functions. They take a `HarEntry` and return a string. The main process imports them directly -- they have no browser or React dependencies. Tests are in `src/utils/copyFormatters.test.ts`.
 
 ## Multi-Window Behavior
 
