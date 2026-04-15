@@ -100,7 +100,8 @@
         {
           "ext": "har",
           "name": "HAR File",
-          "description": "HTTP Archive File"
+          "description": "HTTP Archive File",
+          "icon": "build/har-document"
         }
       ]
     },

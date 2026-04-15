@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <!-- Subtle shadow for the page -->
+    <filter id="shadow" x="-4%" y="-4%" width="112%" height="112%">
+      <feDropShadow dx="1" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.2"/>
+    </filter>
+    <!-- Gradient for the fold to give it dimension -->
+    <linearGradient id="foldGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d0d0d0"/>
+      <stop offset="100%" stop-color="#e8e8e8"/>
+    </linearGradient>
+    <!-- Slight gradient on the page for depth -->
+    <linearGradient id="pageGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f0f0f0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Page body: rectangle with dog-ear cut from top-right -->
+  <path d="M 40,16 L 176,16 L 216,56 L 216,240 L 40,240 Z"
+        fill="url(#pageGrad)" stroke="#b0b0b0" stroke-width="1.5"
+        filter="url(#shadow)"/>
+
+  <!-- Dog-ear fold triangle -->
+  <path d="M 176,16 L 176,56 L 216,56 Z"
+        fill="url(#foldGrad)" stroke="#b0b0b0" stroke-width="1.5"/>
+
+  <!-- Fold crease line (subtle inner edge) -->
+  <line x1="176" y1="56" x2="176" y2="16" stroke="#c8c8c8" stroke-width="0.5"/>
+  <line x1="176" y1="56" x2="216" y2="56" stroke="#c8c8c8" stroke-width="0.5"/>
+
+  <!-- Waterfall bars from the Netscope logo, centered on the page -->
+  <!-- Bar 1: cyan, short -->
+  <rect x="72" y="90" width="48" height="10" rx="5" fill="#4dd0e1"/>
+  <!-- Bar 2: blue, long -->
+  <rect x="72" y="112" width="104" height="10" rx="5" fill="#1976d2"/>
+  <!-- Bar 3: green, short -->
+  <rect x="72" y="134" width="40" height="10" rx="5" fill="#4caf50"/>
+  <!-- Bar 4: orange, long -->
+  <rect x="72" y="156" width="96" height="10" rx="5" fill="#ff9800"/>
+  <!-- Bar 5: light blue, medium -->
+  <rect x="72" y="178" width="64" height="10" rx="5" fill="#42a5f5"/>
+
+  <!-- "HAR" text at the bottom of the page -->
+  <text x="128" y="222" text-anchor="middle"
+        font-family="SF Mono, Menlo, Consolas, monospace"
+        font-size="20" font-weight="700" fill="#666">HAR</text>
+</svg>
