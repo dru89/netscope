@@ -65,6 +65,40 @@ const isMac = process.platform === "darwin";
 const CASCADE_OFFSET = 28;
 let lastCreatedWindow: BrowserWindow | null = null;
 
+// On Windows and Linux, ensure only one instance of the app runs.
+// When a second instance is launched (e.g., double-clicking a .har file),
+// the file path arrives here via argv instead of spawning a new process.
+// macOS uses the `open-file` event instead, so the lock is still acquired
+// but the `second-instance` handler won't fire for Finder opens.
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  // Another instance is already running — it will receive our argv via
+  // the `second-instance` event. Quit this instance immediately.
+  app.quit();
+} else {
+  app.on("second-instance", (_event, argv) => {
+    // On Windows, the file path is passed as the last argument.
+    // argv[0] is the executable, argv[1..] are flags/paths.
+    const filePath = argv.find(
+      (arg) => arg.endsWith(".har") && fs.existsSync(arg),
+    );
+    if (filePath) {
+      openFileInNewWindow(filePath);
+    } else {
+      // No file — just open a new window
+      createWindow();
+    }
+
+    // Focus the most recently used window so the app comes to the front
+    const win = BrowserWindow.getFocusedWindow() ?? [...windows][0];
+    if (win) {
+      if (win.isMinimized()) win.restore();
+      win.focus();
+    }
+  });
+}
+
 function getCascadePosition(): { x: number; y: number } | undefined {
   // Cascade from the most recently created window, not the focused one,
   // so that new windows always stack below the previous one regardless
