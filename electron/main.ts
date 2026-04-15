@@ -13,17 +13,41 @@ import fs from "fs";
 
 const windows = new Set<BrowserWindow>();
 const windowFilePaths = new Map<BrowserWindow, string>();
+const recentDocuments: string[] = [];
+const MAX_RECENT_DOCUMENTS = 10;
+
+function addRecentDocument(filePath: string) {
+  app.addRecentDocument(filePath);
+  const index = recentDocuments.indexOf(filePath);
+  if (index !== -1) {
+    recentDocuments.splice(index, 1);
+  }
+  recentDocuments.unshift(filePath);
+  if (recentDocuments.length > MAX_RECENT_DOCUMENTS) {
+    recentDocuments.length = MAX_RECENT_DOCUMENTS;
+  }
+}
 let pendingFile: string | null = null;
 let pendingUpdateVersion: string | null = null;
 
 const isMac = process.platform === "darwin";
+const CASCADE_OFFSET = 28;
+
+function getCascadePosition(): { x: number; y: number } | undefined {
+  const focused = BrowserWindow.getFocusedWindow();
+  if (!focused) return undefined;
+  const [x, y] = focused.getPosition();
+  return { x: x + CASCADE_OFFSET, y: y + CASCADE_OFFSET };
+}
 
 function createWindow(fileToOpen?: string): BrowserWindow {
+  const cascade = windows.size > 0 ? getCascadePosition() : undefined;
   const win = new BrowserWindow({
     width: 1400,
     height: 900,
     minWidth: 900,
     minHeight: 600,
+    ...(cascade ? { x: cascade.x, y: cascade.y } : {}),
     ...(isMac
       ? {
           titleBarStyle: "hiddenInset" as const,
@@ -67,14 +91,31 @@ function sendFileToWindow(win: BrowserWindow, filePath: string) {
   try {
     const resolved = path.resolve(filePath);
     const content = fs.readFileSync(resolved, "utf-8");
+    const fileName = path.basename(resolved);
     windowFilePaths.set(win, resolved);
+    win.setTitle(fileName);
+    if (isMac) {
+      win.setRepresentedFilename(resolved);
+    }
+    addRecentDocument(resolved);
+    buildMenu();
     win.webContents.send("har-file-opened", {
       filePath: resolved,
       content,
-      fileName: path.basename(resolved),
+      fileName,
     });
   } catch (err) {
     console.error("Failed to read HAR file:", err);
+    const message =
+      (err as NodeJS.ErrnoException).code === "ENOENT"
+        ? `The file "${path.basename(filePath)}" could not be found. It may have been moved or deleted.`
+        : `The file "${path.basename(filePath)}" could not be opened.`;
+    dialog.showMessageBox(win, {
+      type: "warning",
+      message: "Unable to open file",
+      detail: message,
+      buttons: ["OK"],
+    });
   }
 }
 
@@ -90,6 +131,30 @@ function findWindowForFile(filePath: string): BrowserWindow | null {
 }
 
 function openFileInNewWindow(filePath: string) {
+  const resolved = path.resolve(filePath);
+
+  // Check if the file exists before creating or reusing a window
+  if (!fs.existsSync(resolved)) {
+    const focusedWindow = BrowserWindow.getFocusedWindow();
+    const dialogOptions = {
+      type: "warning" as const,
+      message: "Unable to open file",
+      detail: `The file "${path.basename(filePath)}" could not be found. It may have been moved or deleted.`,
+      buttons: ["OK"],
+    };
+    if (focusedWindow) {
+      dialog.showMessageBox(focusedWindow, dialogOptions);
+    } else {
+      dialog.showMessageBox(dialogOptions);
+    }
+    const index = recentDocuments.indexOf(resolved);
+    if (index !== -1) {
+      recentDocuments.splice(index, 1);
+      buildMenu();
+    }
+    return;
+  }
+
   // If this file is already open, just focus that window
   const existing = findWindowForFile(filePath);
   if (existing) {
@@ -127,14 +192,22 @@ ipcMain.handle("open-file-dialog", async (event) => {
   if (!result.canceled && result.filePaths.length > 0) {
     const filePath = result.filePaths[0];
     try {
-      const content = fs.readFileSync(filePath, "utf-8");
+      const resolved = path.resolve(filePath);
+      const fileName = path.basename(resolved);
+      const content = fs.readFileSync(resolved, "utf-8");
       if (win) {
-        windowFilePaths.set(win, path.resolve(filePath));
+        windowFilePaths.set(win, resolved);
+        win.setTitle(fileName);
+        if (isMac) {
+          win.setRepresentedFilename(resolved);
+        }
       }
+      addRecentDocument(resolved);
+      buildMenu();
       return {
-        filePath,
+        filePath: resolved,
         content,
-        fileName: path.basename(filePath),
+        fileName,
       };
     } catch (err) {
       console.error("Failed to read file:", err);
@@ -147,15 +220,23 @@ ipcMain.handle("open-file-dialog", async (event) => {
 // Handle reading a file from a dropped path
 ipcMain.handle("read-har-file", async (event, filePath: string) => {
   try {
-    const content = fs.readFileSync(filePath, "utf-8");
+    const resolved = path.resolve(filePath);
+    const fileName = path.basename(resolved);
+    const content = fs.readFileSync(resolved, "utf-8");
     const win = BrowserWindow.fromWebContents(event.sender);
     if (win) {
-      windowFilePaths.set(win, path.resolve(filePath));
+      windowFilePaths.set(win, resolved);
+      win.setTitle(fileName);
+      if (isMac) {
+        win.setRepresentedFilename(resolved);
+      }
     }
+    addRecentDocument(resolved);
+    buildMenu();
     return {
-      filePath,
+      filePath: resolved,
       content,
-      fileName: path.basename(filePath),
+      fileName,
     };
   } catch (err) {
     console.error("Failed to read file:", err);
@@ -273,6 +354,13 @@ function buildMenu() {
       label: "File",
       submenu: [
         {
+          label: "New Window",
+          accelerator: "CmdOrCtrl+N",
+          click: () => {
+            createWindow();
+          },
+        },
+        {
           label: "Open HAR File...",
           accelerator: "CmdOrCtrl+O",
           click: async () => {
@@ -285,14 +373,36 @@ function buildMenu() {
               ],
             });
             if (!result.canceled && result.filePaths.length > 0) {
-              // Open in the focused window by sending to its renderer
-              if (focusedWindow) {
+              if (focusedWindow && !windowFilePaths.has(focusedWindow)) {
+                // Window is on the welcome screen — load in place
                 sendFileToWindow(focusedWindow, result.filePaths[0]);
               } else {
+                // Window already has a file, or no focused window — open in new window
                 openFileInNewWindow(result.filePaths[0]);
               }
             }
           },
+        },
+        {
+          label: "Open Recent",
+          submenu: [
+            ...recentDocuments.map((filePath) => ({
+              label: path.basename(filePath),
+              click: () => openFileInNewWindow(filePath),
+            })),
+            ...(recentDocuments.length > 0
+              ? [{ type: "separator" as const }]
+              : []),
+            {
+              label: "Clear Menu",
+              enabled: recentDocuments.length > 0,
+              click: () => {
+                app.clearRecentDocuments();
+                recentDocuments.length = 0;
+                buildMenu();
+              },
+            },
+          ],
         },
         { type: "separator" },
         ...(isMac ? [{ role: "close" as const }] : [{ role: "quit" as const }]),
