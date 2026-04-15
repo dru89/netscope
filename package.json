@@ -107,7 +107,8 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": false,
-      "deleteAppDataOnUninstall": true
+      "deleteAppDataOnUninstall": true,
+      "artifactName": "${productName}-Setup-${version}.${ext}"
     },
     "linux": {
       "icon": "build/icon.png",
