@@ -108,15 +108,42 @@ The app supports keyboard navigation, implemented across `RequestTable.tsx` (tab
 
 ### Global
 
-| Shortcut | Action                                                          |
-| -------- | --------------------------------------------------------------- |
-| Escape   | Close detail panel and return focus to table; blur filter input |
-| /        | Focus the toolbar filter input                                  |
-| Cmd+F    | Focus the toolbar filter (unless focus is in the detail panel)  |
+| Shortcut | Action                                                                            |
+| -------- | --------------------------------------------------------------------------------- |
+| Cmd+N    | Open a new empty window                                                           |
+| Cmd+O    | Open file -- loads in place on welcome screen, opens new window if file is loaded |
+| Escape   | Close detail panel and return focus to table; blur filter input                   |
+| /        | Focus the toolbar filter input                                                    |
+| Cmd+F    | Focus the toolbar filter (unless focus is in the detail panel)                    |
 
 **Focus model:** The table container (`div.request-table-container`) has `tabIndex={0}` and handles its own `onKeyDown`. When focus moves elsewhere (detail panel, filter input), table shortcuts stop firing. This is intentional -- arrow keys in the detail panel scroll content, not the entry list. Escape returns focus to the table.
 
 **Gotcha with Escape:** When Escape is pressed inside an input within the detail panel (e.g., the Source tab search input), the global handler defers to the detail panel's own Escape handling. Only a second Escape (or Escape from a non-input element) closes the panel.
+
+## Multi-Window Behavior
+
+The app supports multiple windows. New windows cascade 28px down and right from the focused window so title bars remain visible.
+
+### Opening files
+
+- **Cmd+O on welcome screen:** Loads the file in the current window.
+- **Cmd+O with a file already loaded:** Opens the file in a new window (or focuses an existing window if that file is already open).
+- **Drag and drop into a window:** Always replaces the current file in that window.
+- **Finder double-click / dock icon drop:** Routes through `openFileInNewWindow`, which deduplicates by file path, reuses an empty welcome-screen window, or creates a new window.
+
+### Window titles
+
+Every file-open code path sets `win.setTitle(fileName)` and `win.setRepresentedFilename(resolved)` (macOS). The title isn't visible in the window chrome (due to `hiddenInset` title bar style) but appears in Mission Control, the Window menu, and Cmd-Tab.
+
+### Recent files
+
+The File > Open Recent submenu is managed by an in-memory `recentDocuments` array (capped at 10) since `app.getRecentDocuments()` requires Electron 32+. Each file-open path calls `addRecentDocument()` which updates both the array and the OS-level recent documents (for the dock right-click menu). The app menu is rebuilt after each change. Missing files are detected before creating a window, show a native dialog, and are removed from the list.
+
+### Error handling
+
+- **File not found (from Open Recent or dock):** Native warning dialog on the focused window. No new window is created. Stale entry is removed from the recent files list.
+- **File not found (from `sendFileToWindow`):** Native warning dialog on the target window. Window state is unchanged.
+- **Invalid HAR content:** Error message displayed on the welcome screen in the renderer (existing behavior).
 
 ## Filter Syntax
 
